@@ -1,0 +1,15 @@
+# Path: config.yaml
+
+#### META VARIABLES ####
+phenotype: bodymass
+model: xgboost
+procedure: two-step
+
+#### HYPERPARAMETERS ####
+searchspace: xgboost_space
+
+# FIXED HYPERPARAMETERS
+fixed:
+  objective: reg:squarederror
+  eval_metric: rmse
+
