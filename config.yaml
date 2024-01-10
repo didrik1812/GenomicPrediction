@@ -1,11 +1,16 @@
 # Path: config.yaml
 
+#### DESCRIPTION ####
+# E.G two-step xgboost model with bodymass as phenotype
+
 #### META VARIABLES ####
+name: xgboostBV
 phenotype: bodymass
 model: xgboost
 procedure: two-step
 
 #### HYPERPARAMETERS ####
+# TUNEABLE HYPERPARAMETERS, DEFINED BY SEARCHSPACE
 searchspace: xgboost_space
 
 # FIXED HYPERPARAMETERS
@@ -13,3 +18,7 @@ fixed:
   objective: reg:squarederror
   eval_metric: rmse
 
+#### Settings for hyperparameter optimization ####
+# Number of iterations for hyperparameter optimization
+hyp_settings:
+  num_trials: 50

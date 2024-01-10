@@ -43,3 +43,10 @@ LGBM_space = {
     "max_depth": hp.randint("max_depth", 15, 10000),
     "n_estimators": hp.randint("n_estimators", 20, 205),
 }
+
+search_spaces = {
+    "xgboost_space": xgboost_space,
+    "lightgbm_space": LGBM_space,
+    "catboost_space": catboost_space,
+    "GBM_space": GBM_space,
+}

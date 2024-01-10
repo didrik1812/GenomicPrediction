@@ -6,55 +6,52 @@
 #######################################################################
 
 
-
-
 # setwd("C:\\Users\\didri\\OneDrive - NTNU\\9.semester\\Prosjekt\\ProjectThesis\\code")
 
 # CHANGE THIS TO YOUR OWN PATH: (i.e where the data is stored)
-data_path <- "~/../../../../work/didrikls/ProjectThesis/data/"
+store_path <- "~/../../../../work/didrikls/GenomicPrediction/data/processed/"
+setwd("~/../../../../work/didrikls/GenomicPrediction/src")
 args <- commandArgs(trailingOnly = TRUE)
 phenotype <- args[1]
-
+print(getwd())
 # Packages needed for the script to run:
 if (!require(nadiv)) {
-    install.packages("nadiv", repos = "http://cran.us.r-project.org", dependencies = TRUE)
+  install.packages("nadiv", repos = "http://cran.us.r-project.org", dependencies = TRUE)
 }
 if (!require(pedigree)) {
-    install.packages("pedigree", repos = "http://cran.us.r-project.org", dependencies = TRUE)
+  install.packages("pedigree", repos = "http://cran.us.r-project.org", dependencies = TRUE)
 }
 
 if (!require(MASS)) {
-    install.packages("MASS", repos = "http://cran.us.r-project.org", dependencies = TRUE)
+  install.packages("MASS", repos = "http://cran.us.r-project.org", dependencies = TRUE)
 }
 if (!require(MCMCpack)) {
-    install.packages("MCMCpack", repos = "http://cran.us.r-project.org", dependencies = TRUE)
+  install.packages("MCMCpack", repos = "http://cran.us.r-project.org", dependencies = TRUE)
 }
 if (!require(data.table)) {
-    install.packages("data.table", repos = "http://cran.us.r-project.org", dependencies = TRUE)
+  install.packages("data.table", repos = "http://cran.us.r-project.org", dependencies = TRUE)
 }
 
 if (!require(SMisc)) {
-    install.packages("~\\ProjectThesis\\code\\SMisc.tar.gz", repos = NULL, type = "source")
+  install.packages("~\\ProjectThesis\\code\\SMisc.tar.gz", repos = NULL, type = "source")
 }
 
 if (!require(dplyr)) {
-    install.packages("dplyr", repos = "http://cran.us.r-project.org", dependencies = TRUE)
+  install.packages("dplyr", repos = "http://cran.us.r-project.org", dependencies = TRUE)
 }
 
 if (!require(lme4)) {
-    install.packages("lme4", repos = "http://cran.us.r-project.org", dependencies = TRUE)
+  install.packages("lme4", repos = "http://cran.us.r-project.org", dependencies = TRUE)
 }
 
 
 if (!require(MCMCglmm)) {
-    install.packages("MCMCglmm", repos = "http://cran.us.r-project.org", dependencies = TRUE)
+  install.packages("MCMCglmm", repos = "http://cran.us.r-project.org", dependencies = TRUE)
 }
 
 if (!require(feather)) {
-    install.packages("feather", repos = "http://cran.us.r-project.org", dependencies = TRUE)
+  install.packages("feather", repos = "http://cran.us.r-project.org", dependencies = TRUE)
 }
-
-
 
 
 # Sys.setenv(NOT_CRAN = "true")
@@ -84,11 +81,11 @@ library(dplyr)
 # library(dplyr)
 
 # Data preparation helper script:
-source("h_dataPrep.r")
+source("data/h_dataPrep.r")
 
 # Some data wranging to ensure that the IDs in the data correspond to the IDs in the A and G-matrices (nothing to worry about):
 # indicates that some IDs are missing:
-d.map[3110:3125, ]
+d.map[3110:3125,]
 # from this we see the number of anmals
 Nanimals <- 3116
 
@@ -103,8 +100,6 @@ d.morph$IDC <- d.map[match(d.morph$ringnr, d.map$ringnr), "IDC"]
 d.morph$IDC4 <- d.morph$IDC3 <- d.morph$IDC2 <- d.morph$IDC
 
 
-
-
 ##############################################
 ### Preparations: Start with body mass and extract the id-value for each individual
 ##############################################
@@ -115,16 +110,16 @@ names(d.pheno) <- c("ringnr", phenotype)
 
 
 d.mean.pheno <- as.data.frame(d.pheno %>%
-    group_by(ringnr) %>%
-    summarize(mean_pheno = mean(eval(as.symbol(phenotype)))))
+                                group_by(ringnr) %>%
+                                summarize(mean_pheno = mean(eval(as.symbol(phenotype)))))
 
 
-dd <- d.morph[!is.na(d.morph[phenotype]), ]
+dd <- d.morph[!is.na(d.morph[phenotype]),]
 names_list1 <- c("ringnr", "sex", "FGRM", "outer", "hatchyear")
 
 names(d.mean.pheno) = c("ringnr", phenotype)
 
-dd_red <- merge(d.mean.pheno, dd[,names_list1], by = "ringnr")
+dd_red <- merge(d.mean.pheno, dd[, names_list1], by = "ringnr")
 
 # ## This was the OLD way - I don't think it should be done:
 # # We take as the new phenotype the sum of the ID effect and the mean of the residual for each individual:
@@ -146,16 +141,16 @@ set.seed(323422)
 
 
 # Generate a data frame where individuals with ring numbers from d.ID.res.mass are contained, as well as the phenotype (here the residuals from the lmer analysis with mass as response)
-d.dat.full <- merge(dd, SNP.matrix,by = "ringnr" )
+d.dat.full <- merge(dd, SNP.matrix, by = "ringnr")
 # columns should be included in the data frame:
 names_list2 <- c(
-    phenotype, "ringnr","age","month","other","island_current", "sex", "FGRM", "outer", "hatchyear", names(SNP.matrix)[7:length(names(SNP.matrix))]
+  phenotype, "ringnr", "age", "month", "other", "island_current", "sex", "FGRM", "outer", "hatchyear", names(SNP.matrix)[7:length(names(SNP.matrix))]
 )
 
 # write data to feather file:
 d.dat.full <- d.dat.full[, names_list2]
 d.dat.full <- as.data.frame(
-    d.dat.full %>% distinct()
+  d.dat.full %>% distinct()
 )
-
-write_feather(d.dat.full, paste(data_path, "envGene_", phenotype, ".feather", sep = ""))
+head(colnames(d.dat.full), 15)
+write_feather(d.dat.full, paste(store_path, phenotype, "EG", ".feather", sep = ""))

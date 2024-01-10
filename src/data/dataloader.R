@@ -6,8 +6,8 @@
 #######################################################################
 
 # CHANGE THIS TO YOUR OWN PATH: (i.e where the data is stored)
-data_path <- "~/../../../../work/didrikls/ProjectThesis/data/"
-
+store_path <- "~/../../../../work/didrikls/GenomicPrediction/data/processed/"
+setwd("~/../../../../work/didrikls/GenomicPrediction/src")
 args <- commandArgs(trailingOnly = TRUE)
 phenotype <- args[1]
 
@@ -80,7 +80,7 @@ library(dplyr)
 # library(dplyr)
 
 # Data preparation helper script:
-source("h_dataPrep.r")
+source("data/h_dataPrep.r")
 
 # Some data wranging to ensure that the IDs in the data correspond to the IDs in the A and G-matrices (nothing to worry about):
 # indicates that some IDs are missing:
@@ -164,5 +164,6 @@ SNP.matrix.reduced <- cbind(
 # Generate a data frame where individuals with ring numbers from d.ID.res.mass are contained, as well as the phenotype (here the residuals from the lmer analysis with mass as response)
 d.dat <- merge(d.ID.pheno[, c("ringnr", "ID")], SNP.matrix.reduced, by = "ringnr")
 d.dat.full <- merge(d.ID.pheno[, c("ringnr", "ID", "mean_pheno")], SNP.matrix, by = "ringnr")
+head(colnames(d.dat.full), 10)
 # SAVE THE FULL DATA SET:
-write_feather(d.dat.full, paste(data_path, phenotype, ".feather", sep = ""))
+write_feather(d.dat.full, paste(store_path, phenotype, ".feather", sep = ""))
