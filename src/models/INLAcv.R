@@ -12,7 +12,12 @@ rm(list = ls())
 path_to_results <- "~/../../../../work/didrikls/GenomicPrediction/models/results.feather"
 read_path  <- "~/../../../../work/didrikls/GenomicPrediction/data/interim/"
 setwd("~/../../../../work/didrikls/GenomicPrediction/src")
-phenotype <- yaml::read_yaml("../config.yaml")$phenotype
+config_yaml <- yaml::read_yaml("../config.yaml")
+phenotype <- config_yaml$phenotype
+model <- config_yaml$model
+if (model != "INLA"){
+	quit(save="no")
+}
 
 # If you are running in "interaction" mode  (not from terminal),
 # you can just uncomment this to get the script to work:

@@ -84,7 +84,7 @@ GenomicPrediction.code-workspace
 # vim
 *.swp
 *.swo
-
+.vimrc
 # Mypy cache
 .mypy_cache/
 

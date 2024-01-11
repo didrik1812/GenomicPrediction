@@ -2,7 +2,7 @@ from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
 from catboost import CatBoostRegressor
 from pathlib import Path
-from src.features import searchspaces
+from ..features import searchspaces
 import pandas as pd
 
 PROJECT_DIR = Path(__file__).resolve().parents[2]
@@ -48,8 +48,10 @@ def prep_data_before_train(data: pd.DataFrame, phenotype: str)->tuple:
     :param phenotype: the phenotype to be predicted
     :return: X, Y, ringnrs, X contain covariates and Y contains the phenotype
     '''
-    X = data.drop(columns=["ID", "mass", "tarsus",
+    X = data.drop(columns=["ID", "mass", "tarsus","ringnr",
                            "mean_pheno", "FID", "MAT", "PAT", "SEX", "PHENOTYPE"], errors="ignore")
+    snp_cols = [c for c in X.columns if c.startswith("SNP")]
+    X = X.fillna(0)
     try:
         Y = data.loc[:, phenotype]
     except KeyError:
@@ -60,5 +62,6 @@ def prep_data_before_train(data: pd.DataFrame, phenotype: str)->tuple:
         X.island_current = X.island_current.astype("int")
     except AttributeError:
         pass
+    X.loc[:,snp_cols] = X.loc[:,snp_cols].astype("int")
     ringnrs = data.ringnr
     return X, Y, ringnrs

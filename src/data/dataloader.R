@@ -166,4 +166,4 @@ d.dat <- merge(d.ID.pheno[, c("ringnr", "ID")], SNP.matrix.reduced, by = "ringnr
 d.dat.full <- merge(d.ID.pheno[, c("ringnr", "ID", "mean_pheno")], SNP.matrix, by = "ringnr")
 head(colnames(d.dat.full), 10)
 # SAVE THE FULL DATA SET:
-write_feather(d.dat.full, paste(store_path, phenotype, ".feather", sep = ""))
+write_feather(d.dat.full, paste(store_path, phenotype, "BV.feather", sep = ""))

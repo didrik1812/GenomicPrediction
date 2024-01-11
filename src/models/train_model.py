@@ -9,7 +9,7 @@ import subprocess
 from pathlib import Path
 import logging
 import yaml
-from utils import handle_yaml_before_train, prep_data_before_train
+from .utils import handle_yaml_before_train, prep_data_before_train
 from hyperopt import hp, fmin, tpe, Trials, STATUS_OK
 from sklearn.model_selection import GroupKFold, train_test_split
 from scipy.stats import pearsonr
@@ -18,12 +18,13 @@ import shutil
 from functools import partial
 from typing import Callable
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+#logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # GLOBAL VARIABLES
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 CONFIG_PATH = PROJECT_DIR / "config.yaml"
-np.seed(42)
+np.random.seed(42)
+
 
 
 def train_model(name: str, phenotype: str, fixed: dict, search_space: dict,
