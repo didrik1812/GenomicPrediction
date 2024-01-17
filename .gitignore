@@ -78,6 +78,11 @@ GenomicPrediction.code-workspace
 # exclude data from source control by default
 /data/
 
+# exclude model files from source control by default
+/models/
+# exclude files only used for simple tests
+notebooks/dummy.py
+notebooks/dummy.ipynb
 # Mac OS-specific storage files
 .DS_Store
 

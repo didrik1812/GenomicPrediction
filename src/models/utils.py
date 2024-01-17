@@ -22,7 +22,8 @@ DATA_PATHs = {
 }
 
 
-def handle_yaml_before_train(name: str, phenotype: str, model: str, procedure: str, searchspace: str, fixed: dict, hyp_settings:dict)->dict:
+def handle_yaml_before_train(name: str, phenotype: str, model: str, procedure: str, searchspace: str, fixed: dict,
+        hyp_settings:dict,train_across:bool)->dict:
     '''
     create a dictionary with all the information from config file needed for training
     :param name: name of the model
@@ -38,7 +39,8 @@ def handle_yaml_before_train(name: str, phenotype: str, model: str, procedure: s
     data_path = DATA_PATHs[phenotype + " " + procedure]
 
     return {"name": name, "phenotype": phenotype, "fixed": fixed,
-            "search_space": search_space, "modelObj": modelObj, "data_path": data_path, "hyp_settings":hyp_settings}
+            "search_space": search_space, "modelObj": modelObj, "data_path": data_path, "hyp_settings":hyp_settings,
+            "train_across":train_across}
 
 
 def prep_data_before_train(data: pd.DataFrame, phenotype: str)->tuple:

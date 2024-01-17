@@ -44,9 +44,17 @@ LGBM_space = {
     "n_estimators": hp.randint("n_estimators", 20, 205),
 }
 
+xgboost_linear_space = {
+    "lambda": hp.loguniform("lambda", -8, 2),
+    "alpha": hp.loguniform("alpha", -8, 2),
+    "n_estimators": hp.randint("n_estimators", 20, 205),
+    "eta": hp.loguniform("learning_rate", -7, 0),
+}
+
 search_spaces = {
     "xgboost_space": xgboost_space,
     "lightgbm_space": LGBM_space,
     "catboost_space": catboost_space,
     "GBM_space": GBM_space,
+    "xgboost_linear_space": xgboost_linear_space,
 }

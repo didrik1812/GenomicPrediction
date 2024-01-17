@@ -3,21 +3,23 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: xgboostMassBV
-phenotype: bodymass
+name: xgboostTarsusLinearEG
+phenotype: tarsus
 model: xgboost
-procedure: two-step
+procedure: one-step
 
 #### HYPERPARAMETERS ####
 # TUNEABLE HYPERPARAMETERS, DEFINED BY SEARCHSPACE
-searchspace: xgboost_space
+searchspace: xgboost_linear_space 
 
 # FIXED HYPERPARAMETERS
 fixed:
-  objective: reg:squarederror
-  eval_metric: rmse
+  booster: gblinear
 
 #### Settings for hyperparameter optimization ####
 # Number of iterations for hyperparameter optimization
 hyp_settings:
-  max_evals: 50
+  max_evals: 30
+
+### Train and test between populations? ###
+train_across: no
