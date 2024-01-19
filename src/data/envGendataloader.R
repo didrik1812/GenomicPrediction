@@ -144,7 +144,7 @@ set.seed(323422)
 d.dat.full <- merge(dd, SNP.matrix, by = "ringnr")
 # columns should be included in the data frame:
 names_list2 <- c(
-  phenotype, "ringnr", "age", "month", "other", "island_current", "sex", "FGRM", "outer", "hatchyear", names(SNP.matrix)[7:length(names(SNP.matrix))]
+  phenotype, "ringnr", "age", "month", "other", "island_current", "sex", "FGRM", "outer", "hatchyear", "hatchisland" ,names(SNP.matrix)[7:length(names(SNP.matrix))]
 )
 
 # write data to feather file:

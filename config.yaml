@@ -3,7 +3,7 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: xgboostTarsusLinearEG
+name: xgboostTarsusLinearEGA
 phenotype: tarsus
 model: xgboost
 procedure: one-step
@@ -22,4 +22,4 @@ hyp_settings:
   max_evals: 30
 
 ### Train and test between populations? ###
-train_across: no
+train_across: yes

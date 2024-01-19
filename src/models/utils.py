@@ -53,7 +53,6 @@ def prep_data_before_train(data: pd.DataFrame, phenotype: str)->tuple:
     X = data.drop(columns=["ID", "mass", "tarsus","ringnr",
                            "mean_pheno", "FID", "MAT", "PAT", "SEX", "PHENOTYPE"], errors="ignore")
     snp_cols = [c for c in X.columns if c.startswith("SNP")]
-    X = X.fillna(0)
     try:
         Y = data.loc[:, phenotype]
     except KeyError:
@@ -64,6 +63,9 @@ def prep_data_before_train(data: pd.DataFrame, phenotype: str)->tuple:
         X.island_current = X.island_current.astype("int")
     except AttributeError:
         pass
+    X = X.fillna(0)
     X.loc[:,snp_cols] = X.loc[:,snp_cols].astype("int")
     ringnrs = data.ringnr
     return X, Y, ringnrs
+
+

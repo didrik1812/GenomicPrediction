@@ -105,7 +105,7 @@ def train_between_pop(
     X, Y, ringnrs = prep_data_before_train(data, phenotype)
 
     # TODO: Finish this
-    outer_indexes = X.index[X.hatch_island.isin([22, 23, 24])]
+    outer_indexes = X.index[X.hatchisland.isin([22, 23, 24])]
     X_outer, X_inner = X.loc[outer_indexes], X.drop(outer_indexes, errors = "ignore") 
     Y_outer, Y_inner = Y.loc[outer_indexes], Y.drop(outer_indexes, errors = "ignore") 
     ringnr_outer, ringnr_inner = ringnrs.loc[outer_indexes], ringnrs.drop(outer_indexes, errors = "ignore") 
@@ -119,8 +119,8 @@ def train_between_pop(
     print(f"OUTER FINISHED\t corr: {corr_outer}\t mse: {mse_outer}")
     # Train on inner, test on outer
     model_inner = hyperopt_train(X_inner, Y_inner, ringnr_inner,search_space, fixed, modelObj, hyp_settings)
-    save_CVfold(model, name, "inner")
-    Y_preds = model.predict(X_outer)
+    save_CVfold(model_inner, name, "inner")
+    Y_preds = model.inner(X_outer)
     corr_inner = pearsonr(Y_outer, Y_preds)[0]
     mse_inner = np.mean((Y_outer - Y_preds) ** 2)
     print(f"INNER FINISHED\t corr: {corr_inner}\t mse: {mse_inner}")
