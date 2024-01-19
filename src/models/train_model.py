@@ -34,6 +34,7 @@ def train_model(
     modelObj: Callable,
     data_path: str,
     hyp_settings: dict,
+    model_id:str,
     n_splits: int = 10,
 ) -> None:
     """
@@ -83,9 +84,9 @@ def train_model(
             print(f"FOLD {fold} FINISHED\t corr: {corr}\t mse: {mse}")
             if fold == 0:
                 results = pd.DataFrame({"name": name, "phenotype": phenotype,
-                    "fold": fold, "corr": corr},index = [0])
+                    "fold": fold, "corr": corr,"model_id":model_id},index = [0])
             else:
-                results.loc[len(results.index)]=[name,  phenotype,  fold,  corr]
+                results.loc[len(results.index)]=[name,  phenotype,  fold,  corr, model_id]
     # when all folds are done, save result
     save_run(name, results, is_INLA)
 
@@ -98,6 +99,7 @@ def train_between_pop(
     modelObj: Callable,
     data_path: str,
     hyp_settings: dict,
+    model_id:str,
 ) -> None:
 
     print("STARTING ACROSS POP TRAINING")
@@ -120,7 +122,7 @@ def train_between_pop(
     # Train on inner, test on outer
     model_inner = hyperopt_train(X_inner, Y_inner, ringnr_inner,search_space, fixed, modelObj, hyp_settings)
     save_CVfold(model_inner, name, "inner")
-    Y_preds = model.inner(X_outer)
+    Y_preds = model_inner.predict(X_outer)
     corr_inner = pearsonr(Y_outer, Y_preds)[0]
     mse_inner = np.mean((Y_outer - Y_preds) ** 2)
     print(f"INNER FINISHED\t corr: {corr_inner}\t mse: {mse_inner}")
@@ -129,6 +131,7 @@ def train_between_pop(
         "phenotype":[phenotype, phenotype],
         "fold":["outer", "inner"],
         "corr":[corr_outer, corr_inner],
+        "model_id":[model_id, model_id],
         }, index = [0,1])
     save_run(name, results, False) 
 
@@ -240,11 +243,11 @@ def save_run(name: str, results: pd.DataFrame, is_INLA: bool = False) -> None:
     shutil.copyfile(CONFIG_PATH, save_path / "config.yaml")
     if not is_INLA:
         try:
-            old_results = pd.read_pickle(PROJECT_DIR / "models" / "results.feather")
+            old_results = pd.read_pickle(PROJECT_DIR / "models" / "results.pkl")
             merged_results = pd.concat([old_results, results], axis=0)
-            merged_results.to_pickle(PROJECT_DIR / "models" / "results.feather")
+            merged_results.to_pickle(PROJECT_DIR / "models" / "results.pkl")
         except FileNotFoundError:
-            results.to_pickle(PROJECT_DIR / "models" / "results.feather")
+            results.to_pickle(PROJECT_DIR / "models" / "results.pkl")
 
 
 def save_to_INLA(
