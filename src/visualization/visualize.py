@@ -11,7 +11,7 @@ PROJECT_DIR = Path(__file__).resolve().parents[2]
 RESULTS_FROM_PROJECT_DIR  = PROJECT_DIR/"data"/"external" 
 SAVE_FIGURE_PATH = PROJECT_DIR/"reports"/"figures"
 # LOAD DATAFRAMES
-results_df = pd.read_pickle(PROJECT_DIR/"models"/"results.feather")
+results_df = pd.read_pickle(PROJECT_DIR/"models"/"results.pkl")
 results_df["model_id"] = "xgboost"
 project_thesis_result_df = pd.read_pickle(RESULTS_FROM_PROJECT_DIR/"project_df.pkl")
 project_thesis_result_df_BV = pd.read_pickle(RESULTS_FROM_PROJECT_DIR/"project_df_BV.pkl")
