@@ -40,7 +40,7 @@ def handle_yaml_before_train(name: str, phenotype: str, model: str, procedure: s
 
     return {"name": name, "phenotype": phenotype, "fixed": fixed,
             "search_space": search_space, "modelObj": modelObj, "data_path": data_path, "hyp_settings":hyp_settings,
-            "train_across":train_across}
+            "train_across":train_across, "model_id":model}
 
 
 def prep_data_before_train(data: pd.DataFrame, phenotype: str)->tuple:
@@ -56,7 +56,10 @@ def prep_data_before_train(data: pd.DataFrame, phenotype: str)->tuple:
     try:
         Y = data.loc[:, phenotype]
     except KeyError:
-        Y = data.ID
+        try:
+            Y = data.ID
+        except KeyError:
+            Y = data.mass
 
     try:
         X.hatchyear = X.hatchyear.astype("int")

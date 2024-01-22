@@ -15,7 +15,7 @@ results_df = pd.read_pickle(PROJECT_DIR/"models"/"results.pkl")
 project_thesis_result_df = pd.read_pickle(RESULTS_FROM_PROJECT_DIR/"project_df.pkl")
 project_thesis_result_df_BV = pd.read_pickle(RESULTS_FROM_PROJECT_DIR/"project_df_BV.pkl")
 project_thesis_result_df_EG = pd.read_pickle(RESULTS_FROM_PROJECT_DIR/"project_df_EG.pkl")
-print(project_thesis_result_df_BV)
+
 def compare_with_project(names:list, fig_name:str, EG:bool=True):
     project_EG_red_df = project_thesis_result_df_EG.drop(columns = ["MSE", "feat_perc", "corrWith", "EG"])
     project_BV_red_df = project_thesis_result_df_BV.drop(columns = ["MSE", "feat_perc", "corrWith", "EG"])
@@ -24,9 +24,12 @@ def compare_with_project(names:list, fig_name:str, EG:bool=True):
     master_df = master_df.rename(columns={"name":"model"}).drop(columns = ["model_id", "fold"])
     if EG:
         merged_df = pd.concat([project_EG_red_df, master_df], axis = 0)
+        title = "Phenotype Correlation"
     else:
         merged_df = pd.concat([project_BV_red_df, master_df], axis = 0)
-    make_boxplot(merged_df, "Phenotype Correlation",fig_name)
+        merged_df = master_df
+        title = "Breeding Value Correlation"
+    make_boxplot(merged_df,title,fig_name)
 
 def viz_across_pop():
     across_df = results_df[results_df.fold.isin(["outer","inner"])]
