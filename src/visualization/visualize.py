@@ -26,8 +26,7 @@ def compare_with_project(names:list, fig_name:str, EG:bool=True):
         merged_df = pd.concat([project_EG_red_df, master_df], axis = 0)
         title = "Phenotype Correlation"
     else:
-        merged_df = pd.concat([project_BV_red_df, master_df], axis = 0)
-        merged_df = master_df
+        merged_df = pd.concat([project_BV_red_df, master_df], ignore_index=True)
         title = "Breeding Value Correlation"
     make_boxplot(merged_df,title,fig_name)
 
