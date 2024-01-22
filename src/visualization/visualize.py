@@ -16,12 +16,13 @@ project_thesis_result_df = pd.read_pickle(RESULTS_FROM_PROJECT_DIR/"project_df.p
 project_thesis_result_df_BV = pd.read_pickle(RESULTS_FROM_PROJECT_DIR/"project_df_BV.pkl")
 project_thesis_result_df_EG = pd.read_pickle(RESULTS_FROM_PROJECT_DIR/"project_df_EG.pkl")
 
-def compare_with_project():
+def compare_with_project(names:list, fig_name:str):
     project_EG_red_df = project_thesis_result_df_EG.drop(columns = ["MSE", "feat_perc", "corrWith", "EG"])
     master_df = results_df[~results_df.fold.isin(["outer","inner"])]
+    master_df = master_df[~master_df.name.isin(names)]
     master_df = master_df.rename(columns={"name":"model"}).drop(columns = ["model_id"])
     merged_df = pd.concat([project_EG_red_df, master_df], axis = 0)
-    make_boxplot(merged_df, "Phenotype Correlation", "EG_compare_with_linear.pdf")
+    make_boxplot(merged_df, "Phenotype Correlation",fig_name)
 
 def viz_across_pop():
     across_df = results_df[results_df.fold.isin(["outer","inner"])]
@@ -58,5 +59,5 @@ def make_boxplot(df:pd.DataFrame, title:str, fig_name:str):
 
 if __name__ == "__main__":
     viz_across_pop()
-    compare_with_project()
+    compare_with_project(names = ["xgboostTarsusLinearEG"], fig_name = "EG_compare_with_linear")
 
