@@ -17,7 +17,11 @@ project_thesis_result_df_BV = pd.read_pickle(RESULTS_FROM_PROJECT_DIR/"project_d
 project_thesis_result_df_EG = pd.read_pickle(RESULTS_FROM_PROJECT_DIR/"project_df_EG.pkl")
 
 def compare_with_project():
-    pass   
+    project_EG_red_df = project_thesis_result_df_EG.drop(columns = ["MSE", "feat_perc", "corrWith", "EG"])
+    master_df = results_df[results_df.fold.isin(["outer","inner"])]
+    master_df = master_df.rename(columns={"model_id":"model"})
+    merged_df = pd.concat([project_EG_red_df, master_df], axis = 0)
+    make_boxplot(merged_df, "Phenotype Correlation", "EG_compare_with_linear.pdf")
 
 def viz_across_pop():
     across_df = results_df[results_df.fold.isin(["outer","inner"])]
@@ -39,9 +43,8 @@ def viz_across_pop():
 
 
 def make_boxplot(df:pd.DataFrame, title:str, fig_name:str):
-    df = df.rename(columns={"model_id":"model"})
     sns.set_style("whitegrid")
-    colors = ["#1f78b4", "#a6cee3","#b2df8a", "#fb9a99", "#ffff3"]
+    colors = ["#1f78b4", "#a6cee3","#b2df8a", "#fb9a99", "#fffff3"]
     sns.set_palette(sns.color_palette(colors))
     plt.figure()
     plt.title(title)
@@ -55,4 +58,5 @@ def make_boxplot(df:pd.DataFrame, title:str, fig_name:str):
 
 if __name__ == "__main__":
     viz_across_pop()
+    compare_with_project()
 
