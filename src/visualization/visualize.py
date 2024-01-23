@@ -16,12 +16,18 @@ project_thesis_result_df = pd.read_pickle(RESULTS_FROM_PROJECT_DIR/"project_df.p
 project_thesis_result_df_BV = pd.read_pickle(RESULTS_FROM_PROJECT_DIR/"project_df_BV.pkl")
 project_thesis_result_df_EG = pd.read_pickle(RESULTS_FROM_PROJECT_DIR/"project_df_EG.pkl")
 
+rename_dict = {
+        "xgboostTarsusLinearEG": "xgboostLinear",
+        "xgboostMasssLinearEG": "xgboostLinear",
+        "xgboostTarsusLinearBV": "xgboostLinear"
+        }
 def compare_with_project(names:list, fig_name:str, EG:bool=True):
     project_EG_red_df = project_thesis_result_df_EG.drop(columns = ["MSE", "feat_perc", "corrWith", "EG"])
     project_BV_red_df = project_thesis_result_df_BV.drop(columns = ["MSE", "feat_perc", "corrWith", "EG"])
     master_df = results_df[~results_df.fold.isin(["outer","inner"])]
     master_df = master_df[master_df.name.isin(names)]
     master_df = master_df.rename(columns={"name":"model"}).drop(columns = ["model_id", "fold"])
+    master_df["model"].replace(rename_dict)
     if EG:
         merged_df = pd.concat([project_EG_red_df, master_df], axis = 0)
         title = "Phenotype Correlation"
