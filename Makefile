@@ -1,4 +1,4 @@
-.PHONY: all tarsusEG massEG tarsusBV massBV train INLA
+.PHONY: all tarsusEG massEG tarsusBV massBV train INLA fig
 
 all: train INLA
 train: data config.yaml
@@ -32,4 +32,5 @@ INLA: data/interim
 data/interim: src/models/INLAcv.R
 	Rscript --vanilla src/models/INLAcv.R
 
-
+fig:
+	python -m src.visualization.visualize
