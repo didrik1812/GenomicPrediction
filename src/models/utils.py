@@ -58,7 +58,7 @@ def prep_data_before_train(data: pd.DataFrame, phenotype: str)->tuple:
     except KeyError:
         try:
             Y = data.ID
-        except KeyError:
+        except AttributeError:
             Y = data.mass
 
     try:
