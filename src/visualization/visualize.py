@@ -65,5 +65,5 @@ def make_boxplot(df:pd.DataFrame, title:str, fig_name:str):
 
 if __name__ == "__main__":
     viz_across_pop()
-    compare_with_project(names = ["xgboostTarsusLinearEG","xgboostMassssLinearEG"], fig_name = "EG_compare_with_linear.pdf")
+    compare_with_project(names = ["xgboostTarsusLinearEG","xgboostMasssLinearEG"], fig_name = "EG_compare_with_linear.pdf")
     compare_with_project(names = ["xgboostTarsusLinearBV"], fig_name = "BV_compare_with_linear.pdf",EG = False)
