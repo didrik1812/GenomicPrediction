@@ -22,8 +22,9 @@ DATA_PATHs = {
 }
 
 
-def handle_yaml_before_train(name: str, phenotype: str, model: str, procedure: str, searchspace: str, fixed: dict,
-        hyp_settings:dict,train_across:bool)->dict:
+def handle_yaml_before_train(name: str, phenotype: str, model: str,
+                             procedure: str, searchspace: str, fixed: dict,
+                             hyp_settings: dict, train_across: bool) -> dict:
     '''
     create a dictionary with all the information from config file needed for training
     :param name: name of the model
@@ -38,20 +39,31 @@ def handle_yaml_before_train(name: str, phenotype: str, model: str, procedure: s
     modelObj = MODEL_DICT[model]
     data_path = DATA_PATHs[phenotype + " " + procedure]
 
-    return {"name": name, "phenotype": phenotype, "fixed": fixed,
-            "search_space": search_space, "modelObj": modelObj, "data_path": data_path, "hyp_settings":hyp_settings,
-            "train_across":train_across, "model_id":model}
+    return {
+        "name": name,
+        "phenotype": phenotype,
+        "fixed": fixed,
+        "search_space": search_space,
+        "modelObj": modelObj,
+        "data_path": data_path,
+        "hyp_settings": hyp_settings,
+        "train_across": train_across,
+        "model_id": model
+    }
 
 
-def prep_data_before_train(data: pd.DataFrame, phenotype: str)->tuple:
+def prep_data_before_train(data: pd.DataFrame, phenotype: str) -> tuple:
     '''
     prepare data for training, returns target vector and covariate-matrix and ringnrs for grouping
     :param data: all data from dataloader script
     :param phenotype: the phenotype to be predicted
     :return: X, Y, ringnrs, X contain covariates and Y contains the phenotype
     '''
-    X = data.drop(columns=["ID", "mass", "tarsus","ringnr",
-                           "mean_pheno", "FID", "MAT", "PAT", "SEX", "PHENOTYPE"], errors="ignore")
+    X = data.drop(columns=[
+        "ID", "mass", "tarsus", "ringnr", "mean_pheno", "FID", "MAT", "PAT",
+        "SEX", "PHENOTYPE"
+    ],
+                  errors="ignore")
     snp_cols = [c for c in X.columns if c.startswith("SNP")]
     try:
         Y = data.loc[:, phenotype]
@@ -67,8 +79,6 @@ def prep_data_before_train(data: pd.DataFrame, phenotype: str)->tuple:
     except AttributeError:
         pass
     X = X.fillna(0)
-    X.loc[:,snp_cols] = X.loc[:,snp_cols].astype("int")
+    X.loc[:, snp_cols] = X.loc[:, snp_cols].astype("int")
     ringnrs = data.ringnr
     return X, Y, ringnrs
-
-
