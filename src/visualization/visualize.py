@@ -27,7 +27,7 @@ def compare_with_project(names:list, fig_name:str, EG:bool=True):
     master_df = results_df[~results_df.fold.isin(["outer","inner"])]
     master_df = master_df[master_df.name.isin(names)]
     master_df = master_df.rename(columns={"name":"model"}).drop(columns = ["model_id", "fold"])
-    master_df["model"].replace(rename_dict)
+    master_df = master_df["model"].replace(rename_dict)
     if EG:
         merged_df = pd.concat([project_EG_red_df, master_df], axis = 0)
         title = "Phenotype Correlation"
