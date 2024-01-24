@@ -7,12 +7,7 @@ import pandas as pd
 
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 
-MODEL_DICT = {
-    "xgboost": XGBRegressor,
-    "lightgbm": LGBMRegressor,
-    "catboost": CatBoostRegressor,
-    "INLA": "INLA"
-}
+MODEL_DICT = {"xgboost": XGBRegressor, "lightgbm": LGBMRegressor, "catboost": CatBoostRegressor, "INLA": "INLA"}
 
 DATA_PATHs = {
     "bodymass two-step": PROJECT_DIR / "data" / "processed" / "massBV.feather",
@@ -22,8 +17,7 @@ DATA_PATHs = {
 }
 
 
-def handle_yaml_before_train(name: str, phenotype: str, model: str,
-                             procedure: str, searchspace: str, fixed: dict,
+def handle_yaml_before_train(name: str, phenotype: str, model: str, procedure: str, searchspace: str, fixed: dict,
                              hyp_settings: dict, train_across: bool) -> dict:
     '''
     create a dictionary with all the information from config file needed for training
@@ -59,10 +53,7 @@ def prep_data_before_train(data: pd.DataFrame, phenotype: str) -> tuple:
     :param phenotype: the phenotype to be predicted
     :return: X, Y, ringnrs, X contain covariates and Y contains the phenotype
     '''
-    X = data.drop(columns=[
-        "ID", "mass", "tarsus", "ringnr", "mean_pheno", "FID", "MAT", "PAT",
-        "SEX", "PHENOTYPE"
-    ],
+    X = data.drop(columns=["ID", "mass", "tarsus", "ringnr", "mean_pheno", "FID", "MAT", "PAT", "SEX", "PHENOTYPE"],
                   errors="ignore")
     snp_cols = [c for c in X.columns if c.startswith("SNP")]
     try:
@@ -82,3 +73,7 @@ def prep_data_before_train(data: pd.DataFrame, phenotype: str) -> tuple:
     X.loc[:, snp_cols] = X.loc[:, snp_cols].astype("int")
     ringnrs = data.ringnr
     return X, Y, ringnrs
+
+
+def get_current_model_names():
+    pass

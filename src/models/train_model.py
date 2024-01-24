@@ -5,9 +5,7 @@ from lightgbm import LGBMRegressor
 from catboost import CatBoostRegressor
 import pandas as pd
 import numpy as np
-import subprocess
 from pathlib import Path
-import logging
 import yaml
 from .utils import handle_yaml_before_train, prep_data_before_train
 from hyperopt import hp, fmin, tpe, Trials, STATUS_OK
@@ -17,6 +15,7 @@ import pickle
 import shutil
 from functools import partial
 from typing import Callable
+from ..visualization import compare_with_project, viz_across_pop, make_boxplot
 
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -60,8 +59,7 @@ def train_model(
     is_INLA = isinstance(modelObj, str)
     # create cross validation folds
     kf = GroupKFold(n_splits=n_splits)
-    for fold, (train_val_index,
-               test_index) in enumerate(kf.split(X, groups=ringnrs)):
+    for fold, (train_val_index, test_index) in enumerate(kf.split(X, groups=ringnrs)):
         print(f"Starting fold {fold}")
         # Split data into train_val and test
         X_train_val, X_test = X.iloc[train_val_index], X.iloc[test_index]
@@ -73,8 +71,8 @@ def train_model(
             save_to_INLA(train_val_index, test_index, fold, ringnrs)
         else:
             # train model with hyperparameter optimization
-            model = hyperopt_train(X_train_val, Y_train_val, ringnr_train_val,
-                                   search_space, fixed, modelObj, hyp_settings)
+            model = hyperopt_train(X_train_val, Y_train_val, ringnr_train_val, search_space, fixed, modelObj,
+                                   hyp_settings)
             # save model for each fold
             save_CVfold(model, name, fold)
             # evaluate model on test set
@@ -90,11 +88,9 @@ def train_model(
                         "fold": fold,
                         "corr": corr,
                         "model_id": model_id
-                    },
-                    index=[0])
+                    }, index=[0])
             else:
-                results.loc[len(
-                    results.index)] = [name, phenotype, fold, corr, model_id]
+                results.loc[len(results.index)] = [name, phenotype, fold, corr, model_id]
     # when all folds are done, save result
     save_run(name, results, is_INLA)
 
@@ -116,15 +112,11 @@ def train_between_pop(
 
     # TODO: Finish this
     outer_indexes = X.index[X.hatchisland.isin([22, 23, 24])]
-    X_outer, X_inner = X.loc[outer_indexes], X.drop(outer_indexes,
-                                                    errors="ignore")
-    Y_outer, Y_inner = Y.loc[outer_indexes], Y.drop(outer_indexes,
-                                                    errors="ignore")
-    ringnr_outer, ringnr_inner = ringnrs.loc[outer_indexes], ringnrs.drop(
-        outer_indexes, errors="ignore")
+    X_outer, X_inner = X.loc[outer_indexes], X.drop(outer_indexes, errors="ignore")
+    Y_outer, Y_inner = Y.loc[outer_indexes], Y.drop(outer_indexes, errors="ignore")
+    ringnr_outer, ringnr_inner = ringnrs.loc[outer_indexes], ringnrs.drop(outer_indexes, errors="ignore")
     # Train on outer, test on inner
-    model_outer = hyperopt_train(X_outer, Y_outer, ringnr_outer, search_space,
-                                 fixed, modelObj, hyp_settings)
+    model_outer = hyperopt_train(X_outer, Y_outer, ringnr_outer, search_space, fixed, modelObj, hyp_settings)
     save_CVfold(model_outer, name, "outer")
 
     Y_preds = model_outer.predict(X_inner)
@@ -132,8 +124,7 @@ def train_between_pop(
     mse_outer = np.mean((Y_inner - Y_preds)**2)
     print(f"OUTER FINISHED\t corr: {corr_outer}\t mse: {mse_outer}")
     # Train on inner, test on outer
-    model_inner = hyperopt_train(X_inner, Y_inner, ringnr_inner, search_space,
-                                 fixed, modelObj, hyp_settings)
+    model_inner = hyperopt_train(X_inner, Y_inner, ringnr_inner, search_space, fixed, modelObj, hyp_settings)
     save_CVfold(model_inner, name, "inner")
     Y_preds = model_inner.predict(X_outer)
     corr_inner = pearsonr(Y_outer, Y_preds)[0]
@@ -255,16 +246,14 @@ def save_run(name: str, results: pd.DataFrame, is_INLA: bool = False) -> None:
     shutil.copyfile(CONFIG_PATH, save_path / "config.yaml")
     if not is_INLA:
         try:
-            old_results = pd.read_pickle(PROJECT_DIR / "models" /
-                                         "results.pkl")
+            old_results = pd.read_pickle(PROJECT_DIR / "models" / "results.pkl")
             merged_results = pd.concat([old_results, results], axis=0)
             merged_results.to_pickle(PROJECT_DIR / "models" / "results.pkl")
         except FileNotFoundError:
             results.to_pickle(PROJECT_DIR / "models" / "results.pkl")
 
 
-def save_to_INLA(train_val_index: np.ndarray, test_index: np.ndarray,
-                 fold: int, ringnrs: pd.Series) -> None:
+def save_to_INLA(train_val_index: np.ndarray, test_index: np.ndarray, fold: int, ringnrs: pd.Series) -> None:
     """
     save ringnr indexes for INLA for a fold
     :param train_val_index: indexes for train_val set
@@ -273,10 +262,10 @@ def save_to_INLA(train_val_index: np.ndarray, test_index: np.ndarray,
     :param ringnrs: the ringnrs for each individual
     :return: none
     """
-    ringnrs.iloc[train_val_index].to_frame().reset_index().to_feather(
-        PROJECT_DIR / "data" / "interim" / f"ringnr_train_{fold}.feather")
-    ringnrs.iloc[test_index].to_frame().reset_index().to_feather(
-        PROJECT_DIR / "data" / "interim" / f"ringnr_test_{fold}.feather")
+    ringnrs.iloc[train_val_index].to_frame().reset_index().to_feather(PROJECT_DIR / "data" / "interim" /
+                                                                      f"ringnr_train_{fold}.feather")
+    ringnrs.iloc[test_index].to_frame().reset_index().to_feather(PROJECT_DIR / "data" / "interim" /
+                                                                 f"ringnr_test_{fold}.feather")
 
 
 def main():
@@ -286,8 +275,15 @@ def main():
     train_across = args.pop("train_across")
     if train_across:
         train_between_pop(**args)
+        viz_across_pop()
     else:
         train_model(**args)
+        compare_with_project(names=["xgboostTarsusLinearEG", "xgboostMasssLinearEG"],
+                             fig_name="EG_compare_with_linear.pdf")
+
+        compare_with_project(names=["xgboostTarsusLinearBV", "xgboostMasssLinearBV"],
+                             fig_name="BV_compare_with_linear.pdf",
+                             EG=False)
 
 
 if __name__ == "__main__":
