@@ -22,7 +22,8 @@ project_thesis_result_df_EG = pd.read_pickle(RESULTS_FROM_PROJECT_DIR /
 rename_dict = {
     "xgboostTarsusLinearEG": "xgboostLinear",
     "xgboostMasssLinearEG": "xgboostLinear",
-    "xgboostTarsusLinearBV": "xgboostLinear"
+    "xgboostTarsusLinearBV": "xgboostLinear",
+    "xgboostMasssLinearBV": "xgboostLinear"
 }
 
 
