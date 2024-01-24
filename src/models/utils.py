@@ -4,6 +4,7 @@ from catboost import CatBoostRegressor
 from pathlib import Path
 from ..features import searchspaces
 import pandas as pd
+import os
 
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 
@@ -76,4 +77,8 @@ def prep_data_before_train(data: pd.DataFrame, phenotype: str) -> tuple:
 
 
 def get_current_model_names():
-    pass
+    names = os.listdir(PROJECT_DIR/"models")
+    BVnames = [name for name in names if name[-2:] == "BV"]
+    EGnames = [name for name in names if name[-2:] == "EG"]
+    AcrossPopNames = [name for name in names if name[-3:] == "EGA"]
+    return BVnames, EGnames, AcrossPopNames

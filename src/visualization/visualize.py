@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 import seaborn as sns
 import matplotlib.ticker as ticker
+from ..models import utils
+import re
 # GLOBAL VARIABLES
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 RESULTS_FROM_PROJECT_DIR = PROJECT_DIR / "data" / "external"
@@ -19,13 +21,11 @@ project_thesis_result_df_BV = pd.read_pickle(RESULTS_FROM_PROJECT_DIR /
 project_thesis_result_df_EG = pd.read_pickle(RESULTS_FROM_PROJECT_DIR /
                                              "project_df_EG.pkl")
 
-rename_dict = {
-    "xgboostTarsusLinearEG": "xgboostLinear",
-    "xgboostMasssLinearEG": "xgboostLinear",
-    "xgboostTarsusLinearBV": "xgboostLinear",
-    "xgboostMasssLinearBV": "xgboostLinear"
-}
-
+def rename_models(oldName:str):
+    # Split camelcase to list using regex
+    NameSplitted = re.findall(r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', str)
+    newName = NameSplitted[0] + NameSplitted[2]
+    return newName
 
 def compare_with_project(names: list, fig_name: str, EG: bool = True):
     project_EG_red_df = project_thesis_result_df_EG.drop(
@@ -37,7 +37,7 @@ def compare_with_project(names: list, fig_name: str, EG: bool = True):
     master_df = master_df.rename(columns={
         "name": "model"
     }).drop(columns=["model_id", "fold"])
-    master_df.model = master_df.model.replace(rename_dict)
+    master_df.model = master_df.model.apply(rename_models)
     if EG:
         merged_df = pd.concat([project_EG_red_df, master_df], axis=0)
         title = "Phenotype Correlation"
@@ -51,6 +51,7 @@ def compare_with_project(names: list, fig_name: str, EG: bool = True):
 def viz_across_pop():
     across_df = results_df[results_df.fold.isin(["outer", "inner"])]
     across_df = across_df.rename(columns={"model_id": "model"})
+    across_df.model = across_df.model.apply(rename_models)
     sns.set_style("whitegrid")
     colors = ["#1f78b4", "#a6cee3", "#b2df8a", "#fb9a99", "#fffff3"]
     sns.set_palette(sns.color_palette(colors))
@@ -94,10 +95,11 @@ def make_boxplot(df: pd.DataFrame, title: str, fig_name: str):
 
 
 if __name__ == "__main__":
+    BVnames, EGnames, AcrossPopNames = utils.get_current_model_names()
     viz_across_pop()
     compare_with_project(
-        names=["xgboostTarsusLinearEG", "xgboostMasssLinearEG"],
+        names=EGnames,
         fig_name="EG_compare_with_linear.pdf")
-    compare_with_project(names=["xgboostTarsusLinearBV","xgboostMasssLinearBV"],
+    compare_with_project(names=BVnames,
                          fig_name="BV_compare_with_linear.pdf",
                          EG=False)

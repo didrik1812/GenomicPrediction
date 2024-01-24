@@ -1,6 +1,6 @@
 .PHONY: all tarsusEG massEG tarsusBV massBV train INLA fig
 
-all: train INLA
+all: train INLA fig
 train: data config.yaml
 	python -m src.models.train_model
 

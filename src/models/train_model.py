@@ -15,7 +15,6 @@ import pickle
 import shutil
 from functools import partial
 from typing import Callable
-from ..visualization import compare_with_project, viz_across_pop, make_boxplot
 
 # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
@@ -275,15 +274,8 @@ def main():
     train_across = args.pop("train_across")
     if train_across:
         train_between_pop(**args)
-        viz_across_pop()
     else:
         train_model(**args)
-        compare_with_project(names=["xgboostTarsusLinearEG", "xgboostMasssLinearEG"],
-                             fig_name="EG_compare_with_linear.pdf")
-
-        compare_with_project(names=["xgboostTarsusLinearBV", "xgboostMasssLinearBV"],
-                             fig_name="BV_compare_with_linear.pdf",
-                             EG=False)
 
 
 if __name__ == "__main__":
