@@ -14,36 +14,30 @@ RESULTS_FROM_PROJECT_DIR = PROJECT_DIR / "data" / "external"
 SAVE_FIGURE_PATH = PROJECT_DIR / "reports" / "figures"
 # LOAD DATAFRAMES
 results_df = pd.read_pickle(PROJECT_DIR / "models" / "results.pkl")
-project_thesis_result_df = pd.read_pickle(RESULTS_FROM_PROJECT_DIR /
-                                          "project_df.pkl")
-project_thesis_result_df_BV = pd.read_pickle(RESULTS_FROM_PROJECT_DIR /
-                                             "project_df_BV.pkl")
-project_thesis_result_df_EG = pd.read_pickle(RESULTS_FROM_PROJECT_DIR /
-                                             "project_df_EG.pkl")
+project_thesis_result_df = pd.read_pickle(RESULTS_FROM_PROJECT_DIR / "project_df.pkl")
+project_thesis_result_df_BV = pd.read_pickle(RESULTS_FROM_PROJECT_DIR / "project_df_BV.pkl")
+project_thesis_result_df_EG = pd.read_pickle(RESULTS_FROM_PROJECT_DIR / "project_df_EG.pkl")
 
-def rename_models(oldName:str):
+
+def rename_models(oldName: str):
     # Split camelcase to list using regex
     NameSplitted = re.findall(r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', str)
     newName = NameSplitted[0] + NameSplitted[2]
     return newName
 
+
 def compare_with_project(names: list, fig_name: str, EG: bool = True):
-    project_EG_red_df = project_thesis_result_df_EG.drop(
-        columns=["MSE", "feat_perc", "corrWith", "EG"])
-    project_BV_red_df = project_thesis_result_df_BV.drop(
-        columns=["MSE", "feat_perc", "corrWith", "EG"])
+    project_EG_red_df = project_thesis_result_df_EG.drop(columns=["MSE", "feat_perc", "corrWith", "EG"])
+    project_BV_red_df = project_thesis_result_df_BV.drop(columns=["MSE", "feat_perc", "corrWith", "EG"])
     master_df = results_df[~results_df.fold.isin(["outer", "inner"])]
     master_df = master_df[master_df.name.isin(names)]
-    master_df = master_df.rename(columns={
-        "name": "model"
-    }).drop(columns=["model_id", "fold"])
+    master_df = master_df.rename(columns={"name": "model"}).drop(columns=["model_id", "fold"])
     master_df.model = master_df.model.apply(rename_models)
     if EG:
         merged_df = pd.concat([project_EG_red_df, master_df], axis=0)
         title = "Phenotype Correlation"
     else:
-        merged_df = pd.concat([project_BV_red_df, master_df],
-                              ignore_index=True)
+        merged_df = pd.concat([project_BV_red_df, master_df], ignore_index=True)
         title = "Breeding Value Correlation"
     make_boxplot(merged_df, title, fig_name)
 
@@ -79,13 +73,7 @@ def make_boxplot(df: pd.DataFrame, title: str, fig_name: str):
     sns.set_palette(sns.color_palette(colors))
     plt.figure()
     plt.title(title)
-    ax = sns.boxplot(data=df,
-                     x="phenotype",
-                     y="corr",
-                     hue="model",
-                     orient="v",
-                     width=.8,
-                     showfliers=False)
+    ax = sns.boxplot(data=df, x="phenotype", y="corr", hue="model", orient="v", width=.8, showfliers=False)
     ax.yaxis.set_major_locator(ticker.MaxNLocator(10))
     plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
     plt.ylabel("Correlation")
@@ -97,9 +85,5 @@ def make_boxplot(df: pd.DataFrame, title: str, fig_name: str):
 if __name__ == "__main__":
     BVnames, EGnames, AcrossPopNames = utils.get_current_model_names()
     viz_across_pop()
-    compare_with_project(
-        names=EGnames,
-        fig_name="EG_compare_with_linear.pdf")
-    compare_with_project(names=BVnames,
-                         fig_name="BV_compare_with_linear.pdf",
-                         EG=False)
+    compare_with_project(names=EGnames, fig_name="EG_compare_with_linear.pdf")
+    compare_with_project(names=BVnames, fig_name="BV_compare_with_linear.pdf", EG=False)

@@ -77,7 +77,7 @@ def prep_data_before_train(data: pd.DataFrame, phenotype: str) -> tuple:
 
 
 def get_current_model_names():
-    names = os.listdir(PROJECT_DIR/"models")
+    names = os.listdir(PROJECT_DIR / "models")
     BVnames = [name for name in names if name[-2:] == "BV"]
     EGnames = [name for name in names if name[-2:] == "EG"]
     AcrossPopNames = [name for name in names if name[-3:] == "EGA"]
