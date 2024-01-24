@@ -97,6 +97,6 @@ if __name__ == "__main__":
     compare_with_project(
         names=["xgboostTarsusLinearEG", "xgboostMasssLinearEG"],
         fig_name="EG_compare_with_linear.pdf")
-    compare_with_project(names=["xgboostTarsusLinearBV"],
+    compare_with_project(names=["xgboostTarsusLinearBV","xgboostMasssLinearBV"],
                          fig_name="BV_compare_with_linear.pdf",
                          EG=False)
