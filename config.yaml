@@ -3,8 +3,8 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: xgboostMasssEGA
-phenotype: bodymass
+name: xgboostTarsusEGA
+phenotype: tarsus
 model: xgboost
 procedure: one-step
 
