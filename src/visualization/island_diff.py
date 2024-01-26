@@ -10,6 +10,7 @@ from plotnine import (
     ggplot,
     aes,
     geom_boxplot,
+    theme_bw
 )
 
 
@@ -22,7 +23,8 @@ def viz_between_outer_and_inner(df:pd.DataFrame, phenotype:str):
     v = np.vectorize(lambda x: "outer" if x in outer_idx else "inner")
     df["island_group"] = v(df.index)
     p = ggplot(df, aes(x="island_group", y=phenotype)) +\
-            geom_boxplot()
+            geom_boxplot()+\
+            theme_bw()
     p.save(PROJECT_DIR/"reports"/"figures"/f"outer_inner_comp_{phenotype}.pdf")
     
 
