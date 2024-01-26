@@ -10,7 +10,8 @@ from plotnine import (
     ggplot,
     aes,
     geom_boxplot,
-    theme_bw
+    theme_bw,
+    facet_grid
 )
 
 
@@ -24,7 +25,8 @@ def viz_between_outer_and_inner(df:pd.DataFrame, phenotype:str):
     df["island_group"] = v(df.index)
     p = ggplot(df, aes(x="island_group", y=phenotype, fill = "sex")) +\
             geom_boxplot()+\
-            theme_bw()
+            theme_bw()+\
+            facet_grid(".~month")
     p.save(PROJECT_DIR/"reports"/"figures"/f"outer_inner_comp_{phenotype}.pdf")
     
 
