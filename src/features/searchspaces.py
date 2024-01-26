@@ -49,6 +49,8 @@ xgboost_linear_space = {
     "alpha": hp.loguniform("alpha", -8, 2),
     "n_estimators": hp.randint("n_estimators", 20, 205),
     "eta": hp.loguniform("learning_rate", -7, 0),
+    # top_k can only be used with greedy or thrifty feature selector
+    # "top_k": hp.randint("top_k", int(1e3), int(3e4) )
 }
 
 search_spaces = {

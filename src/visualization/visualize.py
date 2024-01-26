@@ -21,8 +21,12 @@ project_thesis_result_df_EG = pd.read_pickle(RESULTS_FROM_PROJECT_DIR / "project
 
 def rename_models(oldName: str):
     # Split camelcase to list using regex
-    NameSplitted = re.findall(r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', str)
-    newName = NameSplitted[0] + NameSplitted[2]
+    NameSplitted = re.findall(r'[a-zA-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', oldName)
+
+    if NameSplitted[2] in ["EGA", "EG", "BV"]:
+        newName = NameSplitted[0]
+    else:
+        newName = NameSplitted[0] + NameSplitted[2]
     return newName
 
 
@@ -44,7 +48,7 @@ def compare_with_project(names: list, fig_name: str, EG: bool = True):
 
 def viz_across_pop():
     across_df = results_df[results_df.fold.isin(["outer", "inner"])]
-    across_df = across_df.rename(columns={"model_id": "model"})
+    across_df = across_df.rename(columns={"name": "model"})
     across_df.model = across_df.model.apply(rename_models)
     sns.set_style("whitegrid")
     colors = ["#1f78b4", "#a6cee3", "#b2df8a", "#fb9a99", "#fffff3"]

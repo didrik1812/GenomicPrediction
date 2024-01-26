@@ -3,18 +3,18 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: xgboostMasssLinearEG
+name: xgboostMasssEGA
 phenotype: bodymass
 model: xgboost
 procedure: one-step
 
 #### HYPERPARAMETERS ####
 # TUNEABLE HYPERPARAMETERS, DEFINED BY SEARCHSPACE
-searchspace: xgboost_linear_space 
+searchspace: xgboost_space
 
 # FIXED HYPERPARAMETERS
 fixed:
-  booster: gblinear
+  booster: gbtree
 
 #### Settings for hyperparameter optimization ####
 # Number of iterations for hyperparameter optimization
@@ -22,4 +22,4 @@ hyp_settings:
   max_evals: 30
 
 ### Train and test between populations? ###
-train_across: no
+train_across: yes
