@@ -3,18 +3,18 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: xgboostTarsusEGA
-phenotype: tarsus
+name: xgboostMasssLinearEGA
+phenotype: bodymass
 model: xgboost
 procedure: one-step
 
 #### HYPERPARAMETERS ####
 # TUNEABLE HYPERPARAMETERS, DEFINED BY SEARCHSPACE
-searchspace: xgboost_space
+searchspace: xgboost_linear_space
 
 # FIXED HYPERPARAMETERS
 fixed:
-  booster: gbtree
+  booster: gblinear
 
 #### Settings for hyperparameter optimization ####
 # Number of iterations for hyperparameter optimization

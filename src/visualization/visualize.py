@@ -48,6 +48,7 @@ def compare_with_project(names: list, fig_name: str, EG: bool = True):
 
 def viz_across_pop():
     across_df = results_df[results_df.fold.isin(["outer", "inner"])]
+    across_df = across_df.dropna()
     across_df = across_df.rename(columns={"name": "model"})
     across_df.model = across_df.model.apply(rename_models)
     sns.set_style("whitegrid")
