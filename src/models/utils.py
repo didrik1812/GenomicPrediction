@@ -16,57 +16,6 @@ import yaml
 
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 
-MODEL_DICT = {
-    "xgboost": XGBRegressor,
-    "lightgbm": LGBMRegressor,
-    "catboost": CatBoostRegressor,
-    "INLA": "INLA",
-}
-
-DATA_PATHs = {
-    "bodymass two-step": PROJECT_DIR / "data" / "processed" / "massBV.feather",
-    "bodymass one-step": PROJECT_DIR / "data" / "processed" / "massEG.feather",
-    "tarsus two-step": PROJECT_DIR / "data" / "processed" / "tarsusBV.feather",
-    "tarsus one-step": PROJECT_DIR / "data" / "processed" / "tarsusEG.feather",
-}
-
-
-def handle_yaml_before_train(
-    name: str,
-    phenotype: str,
-    model: str,
-    procedure: str,
-    searchspace: str,
-    fixed: dict,
-    hyp_settings: dict,
-    train_across: bool,
-) -> dict:
-    """
-    create a dictionary with all the information from config file needed for training
-    :param name: name of the model
-    :param phenotype: phenotype to be predicted
-    :param model: chosen model
-    :param procedure: two-step or one-step procedure
-    :param searchspace: hyperparameter search space
-    :param fixed: fixed hyperparameters
-    :return: dict
-    """
-    search_space = searchspaces.search_spaces[searchspace]
-    modelObj = MODEL_DICT[model]
-    data_path = DATA_PATHs[phenotype + " " + procedure]
-
-    return {
-        "name": name,
-        "phenotype": phenotype,
-        "fixed": fixed,
-        "search_space": search_space,
-        "modelObj": modelObj,
-        "data_path": data_path,
-        "hyp_settings": hyp_settings,
-        "train_across": train_across,
-        "model_id": model,
-    }
-
 
 def prep_data_before_train(data: pd.DataFrame, phenotype: str) -> tuple:
     """
@@ -157,6 +106,10 @@ class Dataset:
 
 @dataclass
 class ModelConfig:
+    """
+    Dataclass for holding the model configurations
+    """
+
     project_path: Path
     yaml_path: Path
 
