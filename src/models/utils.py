@@ -119,34 +119,3 @@ def get_current_model_names() -> tuple:
     EGnames = [name for name in names if name[-2:] == "EG"]
     AcrossPopNames = [name for name in names if name[-3:] == "EGA"]
     return BVnames, EGnames, AcrossPopNames
-
-
-@dataclass
-class Dataset:
-    X_train_val: pd.DataFrame
-    y_train_val: pd.DataFrame
-    X_test: pd.DataFrame
-    y_test: pd.DataFrame
-    ringnr_train_val: pd.DataFrame
-    ringnr_test: pd.DataFrame
-    fold: Union[int, str] = None
-
-    def __post_init__(self):
-        kf = GroupShuffleSplit(n_splits=2)
-        split = kf.split(self.X_train, self.y_train, groups=self.ringnr_train_val)
-        train_inds, val_inds = next(split)
-        self.X_train = self.X_train_val.iloc[train_inds]
-        self.y_train = self.y_train_val.iloc[train_inds]
-        self.X_val = self.X_train_val.iloc[val_inds]
-        self.y_val = self.y_train_val.iloc[val_inds]
-
-
-@dataclass
-class ModelConfig:
-    model: callable
-    search_space: dict
-    fixed_params: dict
-    train_params: dict
-    name: str
-    model_id: str
-    phenotype: str
