@@ -70,14 +70,21 @@ def train_model(
             save_to_INLA(train_val_index, test_index, fold, ringnrs)
         else:
             # train model with hyperparameter optimization
-            model = hyperopt_train(X_train_val, Y_train_val, ringnr_train_val, search_space, fixed, modelObj,
-                                   hyp_settings)
+            model = hyperopt_train(
+                X_train_val,
+                Y_train_val,
+                ringnr_train_val,
+                search_space,
+                fixed,
+                modelObj,
+                hyp_settings,
+            )
             # save model for each fold
             save_CVfold(model, name, fold)
             # evaluate model on test set
             Y_preds = model.predict(X_test)
             corr = pearsonr(Y_test, Y_preds)[0]
-            mse = np.mean((Y_test - Y_preds)**2)
+            mse = np.mean((Y_test - Y_preds) ** 2)
             print(f"FOLD {fold} FINISHED\t corr: {corr}\t mse: {mse}")
             if fold == 0:
                 results = pd.DataFrame(
@@ -86,10 +93,18 @@ def train_model(
                         "phenotype": phenotype,
                         "fold": fold,
                         "corr": corr,
-                        "model_id": model_id
-                    }, index=[0])
+                        "model_id": model_id,
+                    },
+                    index=[0],
+                )
             else:
-                results.loc[len(results.index)] = [name, phenotype, fold, corr, model_id]
+                results.loc[len(results.index)] = [
+                    name,
+                    phenotype,
+                    fold,
+                    corr,
+                    model_id,
+                ]
     # when all folds are done, save result
     save_run(name, results, is_INLA)
 
@@ -104,7 +119,6 @@ def train_between_pop(
     hyp_settings: dict,
     model_id: str,
 ) -> None:
-
     print("STARTING ACROSS POP TRAINING")
     data = pd.read_feather(data_path)
     X, Y, ringnrs = prep_data_before_train(data, phenotype)
@@ -113,21 +127,27 @@ def train_between_pop(
     outer_indexes = X.index[X.hatchisland.isin([22, 23, 24])]
     X_outer, X_inner = X.loc[outer_indexes], X.drop(outer_indexes, errors="ignore")
     Y_outer, Y_inner = Y.loc[outer_indexes], Y.drop(outer_indexes, errors="ignore")
-    ringnr_outer, ringnr_inner = ringnrs.loc[outer_indexes], ringnrs.drop(outer_indexes, errors="ignore")
+    ringnr_outer, ringnr_inner = ringnrs.loc[outer_indexes], ringnrs.drop(
+        outer_indexes, errors="ignore"
+    )
     # Train on outer, test on inner
-    model_outer = hyperopt_train(X_outer, Y_outer, ringnr_outer, search_space, fixed, modelObj, hyp_settings)
+    model_outer = hyperopt_train(
+        X_outer, Y_outer, ringnr_outer, search_space, fixed, modelObj, hyp_settings
+    )
     save_CVfold(model_outer, name, "outer")
 
     Y_preds = model_outer.predict(X_inner)
     corr_outer = pearsonr(Y_inner, Y_preds)[0]
-    mse_outer = np.mean((Y_inner - Y_preds)**2)
+    mse_outer = np.mean((Y_inner - Y_preds) ** 2)
     print(f"OUTER FINISHED\t corr: {corr_outer}\t mse: {mse_outer}")
     # Train on inner, test on outer
-    model_inner = hyperopt_train(X_inner, Y_inner, ringnr_inner, search_space, fixed, modelObj, hyp_settings)
+    model_inner = hyperopt_train(
+        X_inner, Y_inner, ringnr_inner, search_space, fixed, modelObj, hyp_settings
+    )
     save_CVfold(model_inner, name, "inner")
     Y_preds = model_inner.predict(X_outer)
     corr_inner = pearsonr(Y_outer, Y_preds)[0]
-    mse_inner = np.mean((Y_outer - Y_preds)**2)
+    mse_inner = np.mean((Y_outer - Y_preds) ** 2)
     print(f"INNER FINISHED\t corr: {corr_inner}\t mse: {mse_inner}")
     results = pd.DataFrame(
         {
@@ -137,7 +157,8 @@ def train_between_pop(
             "corr": [corr_outer, corr_inner],
             "model_id": [model_id, model_id],
         },
-        index=[0, 1])
+        index=[0, 1],
+    )
     save_run(name, results, False)
 
 
@@ -166,7 +187,7 @@ def objective(
     model.fit(X_train, Y_train)
     Y_preds = model.predict(X_val)
     # corr = pearsonr(Y_val, Y_preds)[0]
-    mse = np.mean((Y_preds - Y_val)**2)
+    mse = np.mean((Y_preds - Y_val) ** 2)
     return {"loss": mse, "status": STATUS_OK}
 
 
@@ -252,7 +273,9 @@ def save_run(name: str, results: pd.DataFrame, is_INLA: bool = False) -> None:
             results.to_pickle(PROJECT_DIR / "models" / "results.pkl")
 
 
-def save_to_INLA(train_val_index: np.ndarray, test_index: np.ndarray, fold: int, ringnrs: pd.Series) -> None:
+def save_to_INLA(
+    train_val_index: np.ndarray, test_index: np.ndarray, fold: int, ringnrs: pd.Series
+) -> None:
     """
     save ringnr indexes for INLA for a fold
     :param train_val_index: indexes for train_val set
@@ -261,10 +284,12 @@ def save_to_INLA(train_val_index: np.ndarray, test_index: np.ndarray, fold: int,
     :param ringnrs: the ringnrs for each individual
     :return: none
     """
-    ringnrs.iloc[train_val_index].to_frame().reset_index().to_feather(PROJECT_DIR / "data" / "interim" /
-                                                                      f"ringnr_train_{fold}.feather")
-    ringnrs.iloc[test_index].to_frame().reset_index().to_feather(PROJECT_DIR / "data" / "interim" /
-                                                                 f"ringnr_test_{fold}.feather")
+    ringnrs.iloc[train_val_index].to_frame().reset_index().to_feather(
+        PROJECT_DIR / "data" / "interim" / f"ringnr_train_{fold}.feather"
+    )
+    ringnrs.iloc[test_index].to_frame().reset_index().to_feather(
+        PROJECT_DIR / "data" / "interim" / f"ringnr_test_{fold}.feather"
+    )
 
 
 def main():

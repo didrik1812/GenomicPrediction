@@ -12,9 +12,9 @@ MODEL_TO_FETCH = "xgboostMasssLinearEGA"
 # MODEL_TO_FETCH = "xgboostMasssEGA"
 FOLD = "fold_outer.pkl"
 PROJECT_DIR = Path(__file__).resolve().parent
-MODEL_PATH = PROJECT_DIR / "models"/ MODEL_TO_FETCH/FOLD
+MODEL_PATH = PROJECT_DIR / "models" / MODEL_TO_FETCH/FOLD
 PHENOTYPE = "mass"
-DATA_PATH = PROJECT_DIR /"data"/"processed"/f"{PHENOTYPE}EG.feather" 
+DATA_PATH = PROJECT_DIR / "data"/"processed"/f"{PHENOTYPE}EG.feather"
 with open(MODEL_PATH, "rb") as file:
     model = pickle.load(file)
 
@@ -27,12 +27,12 @@ X_outer, X_inner = X.loc[outer_indexes], X.drop(outer_indexes, errors="ignore")
 Y_outer, Y_inner = Y.loc[outer_indexes], Y.drop(outer_indexes, errors="ignore")
 
 model_new = XGBRegressor(
-            booster="gblinear",
-            reg_alpha = 0.1,
-            reg_lambda=0.1,
-            learning_rate = 0.001,
-            n_estimators = 150
-            )
+    booster="gblinear",
+    reg_alpha=0.1,
+    reg_lambda=0.1,
+    learning_rate=0.001,
+    n_estimators=150
+)
 model_new.fit(X_outer, Y_outer)
 
 Y_preds = model_new.predict(X_inner)
