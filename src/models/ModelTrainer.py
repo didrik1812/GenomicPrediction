@@ -19,7 +19,19 @@ from .utils import prep_data_before_train, Dataset, ModelConfig
 
 
 class ModelTrainer:
+    """
+    ModelTrainer class is used for training a model with hyperparameter optimization.
+    use the hypertrain() method to run the hyperparameter optimization to find the best model.
+    Save the best model with the save() method.
+    """
+
     def __init__(self, modelSettings: ModelConfig, data: Dataset, max_evals=30) -> None:
+        """
+        Constructor for ModelTrainer class.
+        param modelSettings: ModelConfig object.
+        param data: Dataset object.
+        param max_evals: Number of iterations for hyperparameter optimization. default=30.
+        """
         self.modelSettings = modelSettings
         self.data = data
         self.max_evals = max_evals
@@ -57,7 +69,13 @@ class ModelTrainer:
         pickle.dump(self.BestModel, open(path / f"{self.data.fold}", "wb"))
 
 
-class INLAtrainer(ModelTrainer):
+class INLATrainer(ModelTrainer):
+    """
+    INLATrainer class is an extension of the ModelTrainer class
+    Only preps data for INLA models (to be run in R).
+    Ensures that R-models are trained on equal folds as the python models.
+    """
+
     def __init__(self, modelSettings: ModelConfig, data: Dataset) -> None:
         super().__init__(modelSettings, data)
 
@@ -68,4 +86,10 @@ class INLAtrainer(ModelTrainer):
         pass
 
     def save(self, project_path: Path):
-        pass
+        save_path = project_path / "data" / "interim"
+        self.data.ringnr_train_val.to_frame().reset_index().to_feather(
+            save_path / f"ringnr_train_{self.data.fold}.feather"
+        )
+        self.data.ringnr_test.to_frame().reset_index().to_feather(
+            save_path / f"ringnr_test_{self.data.fold}.feather"
+        )
