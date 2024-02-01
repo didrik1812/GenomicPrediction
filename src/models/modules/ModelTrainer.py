@@ -52,10 +52,10 @@ class ModelTrainer:
         )
         self.bestModel.fit(self.data.X_train_val, self.data.y_train_val)
 
-    def objective(self):
+    def objective(self, params):
         merged_params = {
             **self.modelSettings.fixed_params,
-            **self.modelSettings.train_params,
+            **params
         }
         model = self.modelSettings.model(**merged_params)
         model.fit(self.data.X_train, self.data.y_train)

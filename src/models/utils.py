@@ -92,11 +92,15 @@ class Dataset:
     y_test: pd.DataFrame
     ringnr_train_val: pd.DataFrame
     ringnr_test: pd.DataFrame
-    fold: Union[int, str] = None
+    fold: Union[int, str]
+    X_train: pd.DataFrame = pd.DataFrame()
+    y_train: pd.DataFrame = pd.DataFrame()
+    X_val: pd.DataFrame  = pd.DataFrame()
+    y_val: pd.DataFrame  = pd.DataFrame()
 
     def __post_init__(self):
         kf = GroupShuffleSplit(n_splits=2)
-        split = kf.split(self.X_train, self.y_train, groups=self.ringnr_train_val)
+        split = kf.split(self.X_train_val, self.y_train_val, groups=self.ringnr_train_val)
         train_inds, val_inds = next(split)
         self.X_train = self.X_train_val.iloc[train_inds]
         self.y_train = self.y_train_val.iloc[train_inds]
@@ -112,6 +116,19 @@ class ModelConfig:
 
     project_path: Path
     yaml_path: Path
+
+    data_path = Path() 
+    name = "" 
+    model_id= "" 
+    phenotype= "" 
+    model: Union[XGBRegressor, CatBoostRegressor, LGBMRegressor, str] = XGBRegressor 
+    procedure = "" 
+    searchspace = {} 
+    fixed_params = {} 
+    hyp_settings = {} 
+    train_across= False 
+    search_space= {} 
+    train_across_islands = False
 
     def __post_init__(self):
         self.model_dict = {

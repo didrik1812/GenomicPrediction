@@ -17,8 +17,6 @@ About the setup:
         This is used for to get more datapoints of the models performance for across population predictions.
 """
 from .utils import (
-    prep_data_before_train,
-    Dataset,
     ModelConfig,
 )
 from .modules import ModelCV as mcv
@@ -39,7 +37,7 @@ def main():
                 modelCVobj = mcv.ModelAcrossIsland(data_path, modelSettings)
             else:
                 modelCVobj = mcv.ModelOuterInner(data_path, modelSettings)
-        except Exception as e:
+        except Exception:
             modelCVobj = mcv.ModelAcrossIsland(data_path, modelSettings)
     else:
         modelCVobj = mcv.ModelCV(data_path, modelSettings)

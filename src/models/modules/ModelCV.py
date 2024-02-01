@@ -137,7 +137,7 @@ class ModelAcrossIsland(ModelCV):
         for i in range(len(islands)):
             train_val_index = X.index[X.hatchisland != islands[i]]
             test_index = X.index[X.hatchisland == islands[i]]
-            fold_name = "island_" + islands[i]
+            fold_name = "island_" + str(islands[i])
             yield train_val_index, test_index, fold_name
 
 
