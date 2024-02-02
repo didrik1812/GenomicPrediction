@@ -42,6 +42,9 @@ def main():
     else:
         modelCVobj = mcv.ModelCV(data_path, modelSettings)
 
+    if "reg:quantileerror" in modelSettings.fixed_params.values():
+        modelCVobj = mcv.ModelQuantileCV(modelCVobj)
+
     modelCVobj.run()
 
 

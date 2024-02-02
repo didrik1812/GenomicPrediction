@@ -4,13 +4,13 @@ This file contains the ModelCV class and its variants
 which is used for cross-validation of models.
 """
 import pandas as pd
-import numpy as np
 from pathlib import Path
-from sklearn.model_selection import GroupKFold, train_test_split, GroupShuffleSplit
+from sklearn.model_selection import GroupKFold
 from scipy.stats import pearsonr
 import shutil
 from ..utils import prep_data_before_train, Dataset, ModelConfig
-from .ModelTrainer import ModelTrainer, INLATrainer
+from .ModelTrainer import ModelTrainer, INLATrainer, ModelQuantileTrainer
+from typing import Union
 
 
 class ModelCV:
@@ -42,6 +42,14 @@ class ModelCV:
         for i, splits in enumerate(kfsplits):
             yield splits, fold_names[i]
 
+    def train_and_eval(self, dataset: Dataset):
+        trainer = ModelTrainer(modelSettings=self.modelSettings, data=dataset)
+        trainer.hypertrain()
+        trainer.save(project_path=self.project_path)
+        y_preds = trainer.bestModel.predict(dataset.X_test)
+        self.corr = pearsonr(y_preds, dataset.y_test)[0]
+        print(f"FOLD {dataset.fold} finished\t corr: {self.corr} ")
+
     def run(self):
         data = pd.read_feather(self.data_path)
         X, y, ringnrs = prep_data_before_train(
@@ -57,7 +65,7 @@ class ModelCV:
                 ringnrs.iloc[test_index],
             )
 
-            data = Dataset(
+            dataset = Dataset(
                 X_train_val=X_train_val,
                 X_test=X_test,
                 y_train_val=y_train_val,
@@ -66,18 +74,14 @@ class ModelCV:
                 ringnr_test=ringnr_test,
                 fold=fold,
             )
-            trainer = ModelTrainer(modelSettings=self.modelSettings, data=data)
-            trainer.hypertrain()
-            trainer.save(project_path=self.project_path)
-            y_preds = trainer.bestModel.predict(X_test)
-            corr = pearsonr(y_preds, y_test)[0]
+            self.train_and_eval(dataset)
             if fold == 0:
                 self.results = pd.DataFrame(
                     {
                         "name": self.modelSettings.name,
                         "phenotype": self.modelSettings.phenotype,
                         "fold": fold,
-                        "corr": corr,
+                        "corr": self.corr,
                     },
                     index=[0],
                 )
@@ -86,9 +90,9 @@ class ModelCV:
                     self.modelSettings.name,
                     self.modelSettings.phenotype,
                     fold,
-                    corr,
+                    self.corr,
                 ]
-            self.save()
+        self.save()
 
     def save(self):
         save_path = self.project_path / "models" / self.modelSettings.name
@@ -148,7 +152,7 @@ class ModelINLA(ModelCV):
     The config is saved, but the results must be saved in th R script.
     """
 
-    def __init__(
+    def _init__(
         self, data_path: Path, modelSettings: ModelConfig, n_splits: int = 10
     ) -> None:
         super().__init__(data_path, modelSettings, n_splits)
@@ -184,3 +188,24 @@ class ModelINLA(ModelCV):
     def save(self):
         save_path = self.project_path / "models" / self.modelSettings.name
         shutil.copyfile(self.project_path / "config.yaml", save_path / "config.yaml")
+
+
+class ModelQuantileCV:
+    def __init__(
+        self, ModelCVClass: Union[ModelCV, ModelOuterInner, ModelAcrossIsland]
+    ) -> None:
+        self.__class__.__bases__ = (ModelCVClass.__class__,)
+        self.__dict__ = ModelCVClass.__dict__.copy()
+
+    def train_and_eval(self, dataset: Dataset):
+        trainer = ModelQuantileTrainer(modelSettings=self.modelSettings, data=dataset)
+        trainer.hypertrain()
+        trainer.save(project_path=self.project_path)
+        y_preds = trainer.bestModel.predict(dataset.X_test)
+        corr_lower = pearsonr(y_preds[0, :], dataset.y_test)[0]
+        self.corr = pearsonr(y_preds[1, :], dataset.y_test)[0]
+        corr_upper = pearsonr(y_preds[2, :], dataset.y_test)[0]
+
+        print(
+            f"FOLD {dataset.fold} finished, corr_lower: {corr_lower}\t corr:{self.corr}\t corr_upper:{corr_upper}"
+        )
