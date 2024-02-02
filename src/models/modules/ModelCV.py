@@ -10,7 +10,6 @@ from scipy.stats import pearsonr
 import shutil
 from ..utils import prep_data_before_train, Dataset, ModelConfig
 from .ModelTrainer import ModelTrainer, INLATrainer, QuantileTrainer
-from typing import Union
 
 
 class ModelCV:
@@ -190,22 +189,16 @@ class ModelINLA(ModelCV):
         shutil.copyfile(self.project_path / "config.yaml", save_path / "config.yaml")
 
 
-class ModelQuantileCV:
-    def __init__(
-        self, ModelCVClass: Union[ModelCV, ModelOuterInner, ModelAcrossIsland]
-    ) -> None:
-        self.__class__.__bases__ = (ModelCVClass.__class__,)
-        self.__dict__ = ModelCVClass.__dict__.copy()
+def train_and_eval_quantile(self, dataset: Dataset):
+    trainer = QuantileTrainer(modelSettings=self.modelSettings, data=dataset)
+    trainer.hypertrain()
+    trainer.save(project_path=self.project_path)
+    y_preds = trainer.bestModel.predict(dataset.X_test)
+    corr_lower = pearsonr(y_preds[0, :], dataset.y_test)[0]
+    self.corr = pearsonr(y_preds[1, :], dataset.y_test)[0]
+    corr_upper = pearsonr(y_preds[2, :], dataset.y_test)[0]
 
-    def train_and_eval(self, dataset: Dataset):
-        trainer = QuantileTrainer(modelSettings=self.modelSettings, data=dataset)
-        trainer.hypertrain()
-        trainer.save(project_path=self.project_path)
-        y_preds = trainer.bestModel.predict(dataset.X_test)
-        corr_lower = pearsonr(y_preds[0, :], dataset.y_test)[0]
-        self.corr = pearsonr(y_preds[1, :], dataset.y_test)[0]
-        corr_upper = pearsonr(y_preds[2, :], dataset.y_test)[0]
+    print(
+        f"FOLD {dataset.fold} finished, corr_lower: {corr_lower}\t corr:{self.corr}\t corr_upper:{corr_upper}"
+    )
 
-        print(
-            f"FOLD {dataset.fold} finished, corr_lower: {corr_lower}\t corr:{self.corr}\t corr_upper:{corr_upper}"
-        )

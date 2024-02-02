@@ -30,22 +30,24 @@ def main():
     data_path = modelSettings.data_path
 
     if modelSettings.model == "INLA":
-        modelCVobj = mcv.ModelINLA(data_path, modelSettings)
+        modelCVobj = mcv.ModelINLA
     elif modelSettings.train_across:
         try:
             if modelSettings.train_across_islands:
-                modelCVobj = mcv.ModelAcrossIsland(data_path, modelSettings)
+                modelCVobj = mcv.ModelAcrossIsland
             else:
-                modelCVobj = mcv.ModelOuterInner(data_path, modelSettings)
+                modelCVobj = mcv.ModelOuterInner
         except Exception:
-            modelCVobj = mcv.ModelAcrossIsland(data_path, modelSettings)
+            modelCVobj = mcv.ModelAcrossIsland
     else:
-        modelCVobj = mcv.ModelCV(data_path, modelSettings)
+        modelCVobj = mcv.ModelCV
 
     if "reg:quantileerror" in modelSettings.fixed_params.values():
-        modelCVobj = mcv.ModelQuantileCV(modelCVobj)
+        # dynamically create a ModelCVQuantile class with the suitable train_and_eval method for quantrile regression.
+        modelCVobj = type("ModelCVQuantile", (modelCVobj,), {"train_and_eval": mcv.train_and_eval_quantile})
 
-    modelCVobj.run()
+    modelCVinstance = modelCVobj(data_path, modelSettings)
+    modelCVinstance.run()
 
 
 if __name__ == "__main__":
