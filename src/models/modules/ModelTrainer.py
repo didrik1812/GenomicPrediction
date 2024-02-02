@@ -89,7 +89,7 @@ class INLATrainer(ModelTrainer):
         )
 
 
-class QuentileTrainer(ModelTrainer):
+class QuantileTrainer(ModelTrainer):
     def __init__(self, modelSettings: ModelConfig, data: Dataset) -> None:
         super().__init__(modelSettings, data)
 

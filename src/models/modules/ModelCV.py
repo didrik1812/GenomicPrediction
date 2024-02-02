@@ -9,7 +9,7 @@ from sklearn.model_selection import GroupKFold
 from scipy.stats import pearsonr
 import shutil
 from ..utils import prep_data_before_train, Dataset, ModelConfig
-from .ModelTrainer import ModelTrainer, INLATrainer, ModelQuantileTrainer
+from .ModelTrainer import ModelTrainer, INLATrainer, QuantileTrainer
 from typing import Union
 
 
@@ -198,7 +198,7 @@ class ModelQuantileCV:
         self.__dict__ = ModelCVClass.__dict__.copy()
 
     def train_and_eval(self, dataset: Dataset):
-        trainer = ModelQuantileTrainer(modelSettings=self.modelSettings, data=dataset)
+        trainer = QuantileTrainer(modelSettings=self.modelSettings, data=dataset)
         trainer.hypertrain()
         trainer.save(project_path=self.project_path)
         y_preds = trainer.bestModel.predict(dataset.X_test)
