@@ -21,7 +21,10 @@ from .utils import (
 )
 from .modules import ModelCV as mcv
 from pathlib import Path
+import numpy as np
 
+np.random.seed(42)
+# TODO: Make dict to replace the if-else mess in main()
 
 def main():
     project_path = Path(__file__).resolve().parents[2]

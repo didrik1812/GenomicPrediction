@@ -60,7 +60,7 @@ class ModelTrainer:
     def save(self, project_path: Path):
         path = project_path / "models" / self.modelSettings.name
         path.mkdir(parents=True, exist_ok=True)
-        pickle.dump(self.BestModel, open(path / f"{self.data.fold}", "wb"))
+        pickle.dump(self.BestModel, open(path / f"{self.data.fold}.pkl", "wb"))
 
 
 class INLATrainer(ModelTrainer):

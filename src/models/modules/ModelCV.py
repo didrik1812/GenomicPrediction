@@ -32,7 +32,7 @@ class ModelCV:
         self.modelSettings = modelSettings
         self.n_splits = n_splits
         self.results = pd.DataFrame(columns=["name", "phenotype", "fold", "corr"])
-        self.project_path = data_path.parent.parent
+        self.project_path = data_path.parents[2]
 
     def splitter(self, X, ringnrs):
         kf = GroupKFold(n_splits=self.n_splits)
@@ -95,7 +95,7 @@ class ModelCV:
 
     def save(self):
         save_path = self.project_path / "models" / self.modelSettings.name
-        shutil.copyfile(self.project_path / "config.yaml", save_path / "config.yaml")
+        shutil.copyfile(self.modelSettings.yaml_path, save_path / "config.yaml")
 
         old_results = pd.read_pickle(save_path.parent / "results.pkl")
         self.results = pd.concat([old_results, self.results], axis=0)
@@ -194,9 +194,9 @@ def train_and_eval_quantile(self, dataset: Dataset):
     trainer.hypertrain()
     trainer.save(project_path=self.project_path)
     y_preds = trainer.bestModel.predict(dataset.X_test)
-    corr_lower = pearsonr(y_preds[0, :], dataset.y_test)[0]
-    self.corr = pearsonr(y_preds[1, :], dataset.y_test)[0]
-    corr_upper = pearsonr(y_preds[2, :], dataset.y_test)[0]
+    corr_lower = pearsonr(y_preds[:, 0], dataset.y_test)[0]
+    self.corr = pearsonr(y_preds[:, 1], dataset.y_test)[0]
+    corr_upper = pearsonr(y_preds[:, 2], dataset.y_test)[0]
 
     print(
         f"FOLD {dataset.fold} finished, corr_lower: {corr_lower}\t corr:{self.corr}\t corr_upper:{corr_upper}"
