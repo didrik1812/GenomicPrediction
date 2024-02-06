@@ -4,7 +4,6 @@ This module contains the ModelTrainer class,
 which is used to train a model with hyperparameter optimization.
 """
 import numpy as np
-import pickle
 from pathlib import Path
 from hyperopt import fmin, tpe, Trials, STATUS_OK
 from functools import partial
@@ -60,7 +59,8 @@ class ModelTrainer:
     def save(self, project_path: Path):
         path = project_path / "models" / self.modelSettings.name
         path.mkdir(parents=True, exist_ok=True)
-        pickle.dump(self.BestModel, open(path / f"{self.data.fold}.pkl", "wb"))
+        self.bestModel.save_model(path / f"{self.data.fold}.json")
+        # pickle.dump(self.BestModel, open(path / f"{self.data.fold}.pkl", "wb"))
 
 
 class INLATrainer(ModelTrainer):
