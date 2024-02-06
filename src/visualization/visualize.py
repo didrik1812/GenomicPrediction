@@ -21,7 +21,7 @@ project_thesis_result_df_EG = pd.read_pickle(RESULTS_FROM_PROJECT_DIR / "project
 
 def rename_models(oldName: str):
     # Split camelcase to list using regex
-    NameSplitted = re.findall(r'[a-zA-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', oldName)
+    NameSplitted = re.findall(r'[a-zA-Z](?:[a-z_]+|[A-Z]*(?=[A-Z]|$))', oldName)
 
     if NameSplitted[2] in ["EGA", "EG", "BV"]:
         newName = NameSplitted[0]
@@ -48,7 +48,8 @@ def compare_with_project(names: list, fig_name: str, EG: bool = True):
 
 def viz_across_pop():
     across_df = results_df[results_df.fold.isin(["outer", "inner"])]
-    across_df = across_df.dropna()
+    across_df = across_df.dropna(subset = ["corr"])
+    print(across_df)
     across_df = across_df.rename(columns={"name": "model"})
     across_df.model = across_df.model.apply(rename_models)
     sns.set_style("whitegrid")
@@ -88,7 +89,7 @@ def make_boxplot(df: pd.DataFrame, title: str, fig_name: str):
 
 
 if __name__ == "__main__":
-    BVnames, EGnames, AcrossPopNames = utils.get_current_model_names()
+    # BVnames, EGnames, AcrossPopNames = utils.get_current_model_names()
     viz_across_pop()
-    compare_with_project(names=EGnames, fig_name="EG_compare_with_linear.pdf")
-    compare_with_project(names=BVnames, fig_name="BV_compare_with_linear.pdf", EG=False)
+    # compare_with_project(names=EGnames, fig_name="EG_compare_with_linear.pdf")
+    # compare_with_project(names=BVnames, fig_name="BV_compare_with_linear.pdf", EG=False)
