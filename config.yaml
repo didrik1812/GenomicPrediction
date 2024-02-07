@@ -3,18 +3,17 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: xgboostTarsusLinear_quantEGA
-phenotype: tarsus
+name: xgboostMasss_LinearquantEGAI
+phenotype: bodymass
 model: xgboost
 procedure: one-step
 
   #### HYPERPARAMETERS ####
   # TUNEABLE HYPERPARAMETERS, DEFINED BY SEARCHSPACE
-searchspace: xgboost_linear_space
+searchspace: xgboost_space
 
   # FIXED HYPERPARAMETERS
 fixed:
-  booster: gblinear
   objective: reg:quantileerror
   quantile_alpha: [0.05, 0.5, 0.95]
 
@@ -23,5 +22,9 @@ fixed:
 hyp_settings:
   max_evals: 30
 
-    ### Train and test between populations? ###
+### Train and test between populations? ###
+# If yes, the model will be trained on one population and tested on another
 train_across: yes
+# If yes, the model will be trained on all island except one and tested on the remaining island
+train_across_islands: yes
+
