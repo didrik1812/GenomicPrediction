@@ -3,7 +3,7 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: xgboostMasss_LinearquantEGAI
+name: xgboostMasssLinear_quantEGAI
 phenotype: bodymass
 model: xgboost
 procedure: one-step

@@ -74,7 +74,10 @@ def viz_across_pop():
     plt.savefig(SAVE_FIGURE_PATH / "across_pop.pdf")
 
 def viz_island_for_island():
-    island_dfs = results_df[results_df.fold.isin[]]
+    island_dfs = results_df[results_df.fold.isin([f"island_{i}" for i in range(10)])]
+    island_dfs = island_dfs.dropna(subset = ["corr"])
+    island_dfs = island_dfs.rename(columns={"name": "model"})
+    make_boxplot(island_dfs, "Island For Island Predictions", "IslandForIsland.pdf")
 
 def make_boxplot(df: pd.DataFrame, title: str, fig_name: str):
     sns.set_style("whitegrid")
@@ -94,5 +97,6 @@ def make_boxplot(df: pd.DataFrame, title: str, fig_name: str):
 if __name__ == "__main__":
     BVnames, EGnames, AcrossPopNames = utils.get_current_model_names()
     viz_across_pop()
+    viz_island_for_island()
     compare_with_project(names=EGnames, fig_name="EG_compare_with_linear.pdf")
     compare_with_project(names=BVnames, fig_name="BV_compare_with_linear.pdf", EG=False)
