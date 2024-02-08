@@ -174,4 +174,5 @@ class ModelConfig:
         self.fixed_params = config["fixed"]
         self.hyp_settings = config["hyp_settings"]
         self.train_across = config["train_across"]
-        self.search_space = searchspaces.search_spaces[config["searchspace"]]
+        self.search_space = searchspaces.search_spaces[config["searchspace"]] 
+        self.train_across_islands = config["train_across_islands"]

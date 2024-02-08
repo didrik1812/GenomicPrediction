@@ -3,19 +3,20 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: xgboostMasssLinear_quantEGAI
+name: xgboostMasssLinearEGAI
 phenotype: bodymass
 model: xgboost
 procedure: one-step
 
   #### HYPERPARAMETERS ####
   # TUNEABLE HYPERPARAMETERS, DEFINED BY SEARCHSPACE
-searchspace: xgboost_space
+searchspace: xgboost_linear_space
 
   # FIXED HYPERPARAMETERS
 fixed:
-  objective: reg:quantileerror
-  quantile_alpha: [0.05, 0.5, 0.95]
+  booster: gblinear
+  # objective: reg:quantileerror
+  # quantile_alpha: [0.05, 0.5, 0.95]
 
     #### Settings for hyperparameter optimization ####
     # Number of iterations for hyperparameter optimizationhyp_settings

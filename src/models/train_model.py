@@ -34,14 +34,10 @@ def main():
 
     if modelSettings.model == "INLA":
         modelCVobj = mcv.ModelINLA
+    elif modelSettings.train_across_islands:
+        modelCVobj = mcv.ModelAcrossIsland
     elif modelSettings.train_across:
-        try:
-            if modelSettings.train_across_islands:
-                modelCVobj = mcv.ModelAcrossIsland
-            else:
-                modelCVobj = mcv.ModelOuterInner
-        except Exception:
-            modelCVobj = mcv.ModelAcrossIsland
+        modelCVobj = mcv.ModelOuterInner
     else:
         modelCVobj = mcv.ModelCV
 
