@@ -8,6 +8,15 @@ import seaborn as sns
 import matplotlib.ticker as ticker
 from ..models import utils
 import re
+from plotnine import (
+    ggplot,
+    aes,
+    geom_boxplot,
+    geom_line,
+    geom_point,
+    theme_bw,
+    facet_grid
+)
 # GLOBAL VARIABLES
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 RESULTS_FROM_PROJECT_DIR = PROJECT_DIR / "data" / "external"
@@ -45,6 +54,16 @@ def compare_with_project(names: list, fig_name: str, EG: bool = True):
         title = "Breeding Value Correlation"
     make_boxplot(merged_df, title, fig_name)
 
+def cleveland_plot():
+    across_df = results_df[results_df.fold.isin(["outer", "inner"])]
+    across_df = across_df.dropna(subset = ["corr"])
+    across_df = across_df.rename(columns={"name": "model", "fold":"fold_train"})
+    across_df.model = across_df.model.apply(rename_models)
+    p = ggplot(across_df, aes(x = "corr", y = "model"))+\
+        geom_line(aes(group = "model"))+\
+        geom_point(aes(color = "fold_train"))+\
+        theme_bw()
+    p.save(PROJECT_DIR/ "reports"/ "figures"/ "across_pop_cleveland.pdf")
 
 def viz_across_pop():
     across_df = results_df[results_df.fold.isin(["outer", "inner"])]
@@ -97,6 +116,7 @@ def make_boxplot(df: pd.DataFrame, title: str, fig_name: str):
 if __name__ == "__main__":
     BVnames, EGnames, AcrossPopNames = utils.get_current_model_names()
     viz_across_pop()
+    cleveland_plot()
     viz_island_for_island()
     compare_with_project(names=EGnames, fig_name="EG_compare_with_linear.pdf")
     compare_with_project(names=BVnames, fig_name="BV_compare_with_linear.pdf", EG=False)

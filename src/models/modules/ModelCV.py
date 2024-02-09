@@ -45,7 +45,7 @@ class ModelCV:
         trainer = ModelTrainer(modelSettings=self.modelSettings, data=dataset)
         trainer.hypertrain()
         trainer.save(project_path=self.project_path)
-        y_preds = trainer.bestModel.predict(dataset.X_test)
+        y_preds = trainer.bestModel.predict(dataset.X_test, iteration_range= (0, trainer.bestModel.best_iteration))
         self.corr = pearsonr(y_preds, dataset.y_test)[0]
         print(f"FOLD {dataset.fold} finished\t corr: {self.corr} ")
 
@@ -194,7 +194,7 @@ def train_and_eval_quantile(self, dataset: Dataset):
     trainer = QuantileTrainer(modelSettings=self.modelSettings, data=dataset)
     trainer.hypertrain()
     trainer.save(project_path=self.project_path)
-    y_preds = trainer.bestModel.predict(dataset.X_test)
+    y_preds = trainer.bestModel.predict(dataset.X_test, iteration_range = (0, trainer.bestModel.best_iteration))
     corr_lower = pearsonr(y_preds[:, 0], dataset.y_test)[0]
     self.corr = pearsonr(y_preds[:, 1], dataset.y_test)[0]
     corr_upper = pearsonr(y_preds[:, 2], dataset.y_test)[0]

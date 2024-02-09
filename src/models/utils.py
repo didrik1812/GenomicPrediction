@@ -97,6 +97,8 @@ class Dataset:
     y_train: pd.DataFrame = pd.DataFrame()
     X_val: pd.DataFrame  = pd.DataFrame()
     y_val: pd.DataFrame  = pd.DataFrame()
+    ringnr_train: pd.DataFrame = pd.DataFrame()
+    ringnr_val: pd.DataFrame = pd.DataFrame()
 
     def __post_init__(self):
         kf = GroupShuffleSplit(n_splits=2)
@@ -106,6 +108,8 @@ class Dataset:
         self.y_train = self.y_train_val.iloc[train_inds]
         self.X_val = self.X_train_val.iloc[val_inds]
         self.y_val = self.y_train_val.iloc[val_inds]
+        self.ringnr_val = self.ringnr_train_val.iloc[val_inds]
+        self.ringnr_train = self.ringnr_train_val.iloc[train_inds]
 
 
 @dataclass
