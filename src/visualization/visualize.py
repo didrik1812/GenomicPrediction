@@ -11,7 +11,6 @@ import re
 from plotnine import (
     ggplot,
     aes,
-    geom_boxplot,
     geom_line,
     geom_point,
     theme_bw,
@@ -62,7 +61,8 @@ def cleveland_plot():
     p = ggplot(across_df, aes(x = "corr", y = "model"))+\
         geom_line(aes(group = "model"))+\
         geom_point(aes(color = "fold_train"))+\
-        theme_bw()
+        theme_bw()+\
+        facet_grid(".~phenotype")
     p.save(PROJECT_DIR/ "reports"/ "figures"/ "across_pop_cleveland.pdf")
 
 def viz_across_pop():
