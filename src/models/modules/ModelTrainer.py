@@ -76,7 +76,7 @@ class INLATrainer(ModelTrainer):
     def hypertrain(self):
         pass
 
-    def objective(self):
+    def objective(self, params = None):
         pass
 
     def save(self, project_path: Path):

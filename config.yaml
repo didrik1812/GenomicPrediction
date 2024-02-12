@@ -3,7 +3,7 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: xgboostTarsusLinear_maeEGA
+name: xgboostTarsusLinear_huberEGA
 phenotype: tarsus
 model: xgboost
 procedure: one-step
@@ -15,9 +15,9 @@ searchspace: xgboost_linear_space
   # FIXED HYPERPARAMETERS
 fixed:
   booster: gblinear
-  objective: reg:absoluteerror
+  objective: reg:pseudohubererror
   early_stopping_rounds: 20
-  # huber_slope: 1 # 1 is default value
+  huber_slope: 0.1 # 1 is default value
   # objective: reg:quantileerror
   # quantile_alpha: [0.05, 0.5, 0.95]
 

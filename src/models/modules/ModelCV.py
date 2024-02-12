@@ -74,24 +74,28 @@ class ModelCV:
                 fold=fold,
             )
             self.train_and_eval(dataset)
-            if fold == 0:
-                self.results = pd.DataFrame(
-                    {
-                        "name": self.modelSettings.name,
-                        "phenotype": self.modelSettings.phenotype,
-                        "fold": fold,
-                        "corr": self.corr,
-                    },
-                    index=[0],
-                )
-            else:
-                self.results.loc[len(self.results.index)] = [
-                    self.modelSettings.name,
-                    self.modelSettings.phenotype,
-                    fold,
-                    self.corr,
-                ]
-        self.save()
+            self.add_to_results(fold)
+            self.save()
+
+    def add_to_results(self, fold)-> None:
+        if fold == 0:
+            self.results = pd.DataFrame(
+                {
+                    "name": self.modelSettings.name,
+                    "phenotype": self.modelSettings.phenotype,
+                    "fold": fold,
+                    "corr": self.corr,
+                },
+                index=[0],
+            )
+        else:
+            self.results.loc[len(self.results.index)] = [
+                self.modelSettings.name,
+                self.modelSettings.phenotype,
+                fold,
+                self.corr,
+            ]
+
 
     def save(self):
         save_path = self.project_path / "models" / self.modelSettings.name
@@ -195,11 +199,40 @@ def train_and_eval_quantile(self, dataset: Dataset):
     trainer.hypertrain()
     trainer.save(project_path=self.project_path)
     y_preds = trainer.bestModel.predict(dataset.X_test, iteration_range = (0, trainer.bestModel.best_iteration))
-    corr_lower = pearsonr(y_preds[:, 0], dataset.y_test)[0]
+    self.corr_lower = pearsonr(y_preds[:, 0], dataset.y_test)[0]
     self.corr = pearsonr(y_preds[:, 1], dataset.y_test)[0]
-    corr_upper = pearsonr(y_preds[:, 2], dataset.y_test)[0]
+    self.corr_upper = pearsonr(y_preds[:, 2], dataset.y_test)[0]
 
     print(
         f"FOLD {dataset.fold} finished, corr_lower: {corr_lower}\t corr:{self.corr}\t corr_upper:{corr_upper}"
     )
+
+
+def add_to_results_quantile(self, fold)-> None:
+    if fold == 0:
+        self.results = pd.DataFrame(
+            {
+                "name": self.modelSettings.name,
+                "phenotype": self.modelSettings.phenotype,
+                "fold": fold,
+                "corr": self.corr,
+            },
+            index=[0],
+        )
+    else:
+        self.results.loc[len(self.results.index)] = [
+            self.modelSettings.name,
+            self.modelSettings.phenotype,
+            fold,
+            self.corr,
+        ]
+    for corr in [self.corr_lower, self.corr_upper]:
+        self.results.loc[len(self.results.index)] = [
+            self.modelSettings.name,
+            self.modelSettings.phenotype,
+            fold,
+            corr,
+        ]
+ 
+
 
