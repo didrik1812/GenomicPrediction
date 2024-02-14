@@ -82,7 +82,7 @@ GenomicPrediction.code-workspace
 /models/
 # exclude files only used for simple tests
 notebooks/
-src/models/dummy.py
+src/models/dummypy.py
 # Mac OS-specific storage files
 .DS_Store
 

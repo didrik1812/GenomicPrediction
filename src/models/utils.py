@@ -13,6 +13,7 @@ from typing import Union
 from dataclasses import dataclass
 from sklearn.model_selection import GroupShuffleSplit
 import yaml
+from .CustomModels.LinearResidTree import LinearResidTree
 
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 
@@ -111,6 +112,10 @@ class Dataset:
         self.ringnr_val = self.ringnr_train_val.iloc[val_inds]
         self.ringnr_train = self.ringnr_train_val.iloc[train_inds]
 
+    def winsorize(self):
+        from scipy.stats.mstats import winsorize
+        self.y_train = winsorize(self.y_train , limits = [0.1, 0.1]).data
+
 
 @dataclass
 class ModelConfig:
@@ -139,6 +144,7 @@ class ModelConfig:
             "xgboost": XGBRegressor,
             "lightgbm": LGBMRegressor,
             "catboost": CatBoostRegressor,
+            "linearresidtree": LinearResidTree,
             "INLA": "INLA",
         }
 
@@ -180,3 +186,4 @@ class ModelConfig:
         self.train_across = config["train_across"]
         self.search_space = searchspaces.search_spaces[config["searchspace"]] 
         self.train_across_islands = config["train_across_islands"]
+

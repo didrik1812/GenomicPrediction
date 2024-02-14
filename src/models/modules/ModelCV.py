@@ -8,9 +8,8 @@ from pathlib import Path
 from sklearn.model_selection import GroupKFold
 from scipy.stats import pearsonr
 import shutil
-from ..utils import prep_data_before_train, Dataset, ModelConfig
+from ..utils import prep_data_before_train, Dataset, ModelConfig, searchspaces
 from .ModelTrainer import ModelTrainer, INLATrainer, QuantileTrainer
-
 
 class ModelCV:
     """
@@ -42,7 +41,8 @@ class ModelCV:
             yield splits, fold_names[i]
 
     def train_and_eval(self, dataset: Dataset):
-        trainer = ModelTrainer(modelSettings=self.modelSettings, data=dataset)
+        trainer = ModelTrainer(modelSettings=self.modelSettings, data=dataset, max_evals
+                = self.modelSettings.hyp_settings["max_evals"])
         trainer.hypertrain()
         trainer.save(project_path=self.project_path)
         y_preds = trainer.bestModel.predict(dataset.X_test, iteration_range= (0, trainer.bestModel.best_iteration))
@@ -54,7 +54,7 @@ class ModelCV:
         X, y, ringnrs = prep_data_before_train(
             data=data, phenotype=self.modelSettings.phenotype
         )
-        for i, (train_val_index, test_index, fold) in enumerate(
+        for _, (train_val_index, test_index, fold) in enumerate(
             self.splitter(X, ringnrs)
         ):
             X_train_val, X_test = X.iloc[train_val_index], X.iloc[test_index]
@@ -85,6 +85,7 @@ class ModelCV:
                     "phenotype": self.modelSettings.phenotype,
                     "fold": fold,
                     "corr": self.corr,
+                    "model_id": self.modelSettings.model_id
                 },
                 index=[0],
             )
@@ -94,6 +95,7 @@ class ModelCV:
                 self.modelSettings.phenotype,
                 fold,
                 self.corr,
+                self.modelSettings.model_id
             ]
 
 
@@ -166,7 +168,7 @@ class ModelINLA(ModelCV):
         X, y, ringnrs = prep_data_before_train(
             data=data, phenotype=self.modelSettings.phenotype
         )
-        for i, (train_val_index, test_index, fold) in enumerate(
+        for _, (train_val_index, test_index, fold) in enumerate(
             self.splitter(X, ringnrs)
         ):
             X_train_val, X_test = X.iloc[train_val_index], X.iloc[test_index]
@@ -193,6 +195,7 @@ class ModelINLA(ModelCV):
         save_path = self.project_path / "models" / self.modelSettings.name
         shutil.copyfile(self.project_path / "config.yaml", save_path / "config.yaml")
 
+'''Functions for quantile regresssion (class is dynamically created in train_model script)'''
 
 def train_and_eval_quantile(self, dataset: Dataset):
     trainer = QuantileTrainer(modelSettings=self.modelSettings, data=dataset)
@@ -204,7 +207,7 @@ def train_and_eval_quantile(self, dataset: Dataset):
     self.corr_upper = pearsonr(y_preds[:, 2], dataset.y_test)[0]
 
     print(
-        f"FOLD {dataset.fold} finished, corr_lower: {corr_lower}\t corr:{self.corr}\t corr_upper:{corr_upper}"
+        f"FOLD {dataset.fold} finished, corr_lower: {self.corr_lower}\t corr:{self.corr}\t corr_upper:{self.corr_upper}"
     )
 
 

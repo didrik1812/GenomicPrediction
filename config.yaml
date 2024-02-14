@@ -3,32 +3,32 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: xgboostTarsusLinear_huberEGA
-phenotype: tarsus
-model: xgboost
+name: xgboostMasssLinear_rtreeEGA
+phenotype: bodymass
+model: linearresidtree
 procedure: one-step
 
   #### HYPERPARAMETERS ####
   # TUNEABLE HYPERPARAMETERS, DEFINED BY SEARCHSPACE
-searchspace: xgboost_linear_space
+searchspace: linearresidtree_space
 
   # FIXED HYPERPARAMETERS
 fixed:
-  booster: gblinear
-  objective: reg:pseudohubererror
+  # booster: gblinear
+  objective: reg:absoluteerror
   early_stopping_rounds: 20
-  huber_slope: 0.1 # 1 is default value
+  n_estimators: 50
+  # huber_slope: 0.1 # 1 is default value
   # objective: reg:quantileerror
   # quantile_alpha: [0.05, 0.5, 0.95]
 
     #### Settings for hyperparameter optimization ####
     # Number of iterations for hyperparameter optimizationhyp_settings
 hyp_settings:
-  max_evals: 30
+  max_evals: 10
 
 ### Train and test between populations? ###
 # If yes, the model will be trained on one population and tested on another
 train_across: yes
 # If yes, the model will be trained on all island except one and tested on the remaining island
 train_across_islands: no
-
