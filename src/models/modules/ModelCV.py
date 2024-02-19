@@ -8,7 +8,7 @@ from pathlib import Path
 from sklearn.model_selection import GroupKFold
 from scipy.stats import pearsonr
 import shutil
-from ..utils import prep_data_before_train, Dataset, ModelConfig, searchspaces
+from ..utils import prep_data_before_train, Dataset, ModelConfig, searchspaces, prep_data_for_delta_method
 from .ModelTrainer import ModelTrainer, INLATrainer, QuantileTrainer
 
 class ModelCV:
@@ -30,7 +30,7 @@ class ModelCV:
         self.data_path = data_path
         self.modelSettings = modelSettings
         self.n_splits = n_splits
-        self.results = pd.DataFrame(columns=["name", "phenotype", "fold", "corr"])
+        self.results = pd.DataFrame(columns=["name", "phenotype", "fold", "corr", "model_id"])
         self.project_path = data_path.parents[2]
 
     def splitter(self, X, ringnrs):
@@ -51,9 +51,16 @@ class ModelCV:
 
     def run(self):
         data = pd.read_feather(self.data_path)
-        X, y, ringnrs = prep_data_before_train(
+
+        if self.modelSettings.procedure == "delta":
+            X, y, ringnrs = prep_data_for_delta_method(
             data=data, phenotype=self.modelSettings.phenotype
-        )
+            )
+        else:
+            X, y, ringnrs = prep_data_before_train(
+                data=data, phenotype=self.modelSettings.phenotype
+            )
+
         for _, (train_val_index, test_index, fold) in enumerate(
             self.splitter(X, ringnrs)
         ):
@@ -78,7 +85,7 @@ class ModelCV:
             self.save()
 
     def add_to_results(self, fold)-> None:
-        if fold == 0:
+        if fold == 0 or fold == "outer" or fold == "island_0":
             self.results = pd.DataFrame(
                 {
                     "name": self.modelSettings.name,
@@ -105,6 +112,8 @@ class ModelCV:
 
         old_results = pd.read_pickle(save_path.parent / "results.pkl")
         self.results = pd.concat([old_results, self.results], axis=0)
+        self.results = self.results.reset_index(drop = True)
+        self.results = self.results.drop_duplicates()
         self.results.to_pickle(save_path.parent / "results.pkl")
 
 
@@ -212,15 +221,27 @@ def train_and_eval_quantile(self, dataset: Dataset):
 
 
 def add_to_results_quantile(self, fold)-> None:
-    if fold == 0:
+    if fold == 0 or fold == "outer" or fold == "island_0":
         self.results = pd.DataFrame(
             {
                 "name": self.modelSettings.name,
                 "phenotype": self.modelSettings.phenotype,
                 "fold": fold,
                 "corr": self.corr,
+                "model_id": self.modelSettings.model
             },
             index=[0],
+        )
+        self.results_quantile = pd.DataFrame(
+            {
+                "name": [self.modelSettings.name]*3,
+                "phenotype": [self.modelSettings.phenotype]*3,
+                "fold": [fold]*3,
+                "corr": [self.corr, self.corr_lower, self.corr_upper],
+                "quantile": [0.5, 0.25, 0.75],
+                "model_id": [self.modelSettings.model]*3
+            },
+            index = [0,1,2],
         )
     else:
         self.results.loc[len(self.results.index)] = [
@@ -229,13 +250,38 @@ def add_to_results_quantile(self, fold)-> None:
             fold,
             self.corr,
         ]
-    for corr in [self.corr_lower, self.corr_upper]:
-        self.results.loc[len(self.results.index)] = [
-            self.modelSettings.name,
-            self.modelSettings.phenotype,
-            fold,
-            corr,
-        ]
+        corr_list = [self.corr, self.corr_lower, self.corr_upper]
+        quantile_list = [0.5, 0.25, 0.75]
+        for i in range(len(corr_list)):
+            self.results_quantile.loc[len(self.results_quantile.index)] = [
+                self.modelSettings.name,
+                self.modelSettings.phenotype,
+                fold,
+                corr_list[i],
+                quantile_list[i],
+                self.modelSettings.model
+            ]
  
+
+def save_quantile(self):
+    save_path = self.project_path / "models" / self.modelSettings.name
+    shutil.copyfile(self.modelSettings.yaml_path, save_path / "config.yaml")
+
+    old_results = pd.read_pickle(save_path.parent / "results.pkl")
+    old_results_quantile = pd.read_pickle(save_path.parent / "results_quantile.pkl")
+
+    self.results = pd.concat([old_results, self.results], axis=0)
+    self.results_quantile = pd.concat([old_results_quantile, self.results_quantile], axis=0)
+    
+    self.results = self.results.reset_index(drop = True)
+    self.results = self.results.drop_duplicates()
+
+    self.results_quantile = self.results_quantile.reset_index(drop = True)
+    self.results_quantile = self.results_quantile.drop_duplicates()
+
+    self.results.to_pickle(save_path.parent / "results.pkl")
+    self.results_quantile.to_pickle(save_path.parent / "results_quantile.pkl")
+
+
 
 

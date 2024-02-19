@@ -13,6 +13,7 @@ from typing import Union
 from dataclasses import dataclass
 from sklearn.model_selection import GroupShuffleSplit
 import yaml
+import numpy as np
 from .CustomModels.LinearResidTree import LinearResidTree
 
 PROJECT_DIR = Path(__file__).resolve().parents[2]
@@ -59,6 +60,63 @@ def prep_data_before_train(data: pd.DataFrame, phenotype: str) -> tuple:
     ringnrs = data.ringnr
     return X, Y, ringnrs
 
+
+
+def prep_data_for_delta_method(data:pd.DataFrame, phenotype:str)->tuple:
+    """
+    prepare data for delta training, returns target vector and covariate-matrix and ringnrs for grouping
+    finds the observations with equal environmental effects and uses a reference individual to remove the 
+    environmental effects from the phenotype. 
+
+    :param data: all data from dataloader script
+    :param phenotype: the phenotype to be predicted
+    :return: X, Y, ringnrs, X contain covariates and Y contains the phenotype
+    """
+    X,Y,ringnrs = prep_data_before_train(data=data, phenotype=phenotype)
+    dup_idxs = X.duplicated(subset=["age", "month", "island_current", "hatchisland"], keep=False)
+    dup_groups = X.loc[dup_idxs, ["age", "month", "island_current", "hatchisland"]].drop_duplicates()
+    count_group = np.zeros(len(dup_groups.index))
+    group_dict = {}
+    for (i, dup) in enumerate(dup_groups.values):
+        group_idxs = (X["age"] == dup[0]) & (X["month"] == dup[1]) & (X["island_current"] == dup[2]) & (X["hatchisland"] == dup[3])
+        group_dict[i] = group_idxs
+    
+    mark_df = pd.DataFrame({"ringnr": ringnrs.unique(), "used":False})
+    counts = ringnrs.value_counts()
+
+    for g, idx in group_dict.items():
+        group_ringnr = ringnrs.loc[idx]
+        group_pheno = Y.loc[idx]
+
+        group_ringnr = group_ringnr.astype("category")
+        group_ringnr = group_ringnr.cat.set_categories(counts.index)
+        group_ringnr = group_ringnr.sort_values()
+        
+        used_ringnr = group_ringnr.values[0]
+        used_pheno = group_pheno.values[0]
+        
+        i = 1
+        
+        while mark_df.loc[mark_df.ringnr == used_ringnr,"used"].values:
+            used_pheno = group_pheno.values[i]
+            used_ringnr = group_ringnr.values[i]
+            i+=1
+            if i == len(group_ringnr.index):
+                break
+        Y.loc[idx] -= used_pheno
+        mark_df.loc[mark_df.ringnr.isin([used_ringnr]), "used"] = True
+
+    # need name to use pd.merge()
+    dup_idxs.name = phenotype
+    # perform inner join
+    keep_idxs = pd.merge((Y != 0.0), dup_idxs, left_index=True, right_index=True).index
+    snp_cols = [c for c in X.columns if c.startswith("SNP")]
+    Y = Y.loc[keep_idxs]
+    # only keep snp columns as covariate
+    X = X.loc[keep_idxs, snp_cols + ["hatchisland"]]
+    ringnrs = ringnrs.loc[keep_idxs]
+
+    return X, Y, ringnrs
 
 def get_current_model_names() -> tuple:
     """
@@ -165,6 +223,14 @@ class ModelConfig:
             / "data"
             / "processed"
             / "tarsusEG.feather",
+            "tarsus delta": self.project_path
+            / "data"
+            / "processed"
+            / "tarsusEG.feather",
+            "bodymass delta": self.project_path
+            / "data"
+            / "processed"
+            / "massEG.feather",
         }
         self.handle_yaml()
 

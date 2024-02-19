@@ -99,7 +99,7 @@ class QuantileTrainer(ModelTrainer):
             **params
         }
         model = self.modelSettings.model(**merged_params)
-        model.fit(self.data.X_train, self.data.y_train)
+        model.fit(self.data.X_train, self.data.y_train, eval_set = [(self.data.X_val, self.data.y_val)], verbose = False)
         y_pred = model.predict(self.data.X_val, iteration_range = (0, model.best_iteration))[:,1] # access the median
         mse = np.mean((y_pred - self.data.y_val) ** 2)
         return {"loss": mse, "status": STATUS_OK}

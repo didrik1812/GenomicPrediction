@@ -20,10 +20,14 @@ class LinearResidTree:
         self.linear_model = XGBRegressor(**linear_model_params, booster = "gblinear")
         self.tree_model = XGBRegressor(**tree_model_params, booster = "gbtree")
         self.best_iteration = None
+        self.kwargs = kwargs
 
     def fit(self, X:pd.DataFrame, y:pd.DataFrame, **kwargs)-> None:
         self.linear_model.fit(X,y, **kwargs)
-        residuals = y - self.linear_model.predict(X)  
+        if self.kwargs["objective"] == "reg:quantileerror":
+            residuals = y - self.linear_model.predict(X)[:, 1]
+        else:
+            residuals = y - self.linear_model.predict(X)  
         # Try to avoid small numbers
         residuals[residuals <= 1e-6] = 0.0
         self.tree_model.fit(X, residuals, **kwargs)
