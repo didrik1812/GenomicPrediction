@@ -184,6 +184,33 @@ class Dataset:
         from scipy.stats.mstats import winsorize
         self.y_train = winsorize(self.y_train , limits = [0.1, 0.1]).data
 
+    def reduce_snps(self, num_snps:int = 500):
+        snp_cols = [c for c in self.X_train.columns if c.startswith("SNP")]
+        non_snp_cols = [c for c in self.X_train.columns if c not in snp_cols]
+        # find correlation of snp and sort it in ascending order
+        snp_rank = abs(self.X_train.loc[:, snp_cols].corrwith(self.y_train)).sort_values(ascending = False)
+        # select subset of snps
+        snp_subset = snp_rank[:num_snps].index.to_list()
+        self.X_train = self.X_train.loc[:, snp_subset + non_snp_cols]
+        self.X_val = self.X_val.loc[:, snp_subset + non_snp_cols]
+        self.X_test = self.X_test.loc[:, snp_subset + non_snp_cols]
+
+    def add_interaction(self, num_snps:int = 500):
+        self.reduce_snps(num_snps)
+        snp_cols = [c for c in self.X_train.columns if c.startswith("SNP")]
+        for snp1 in snp_cols:
+            for snp2 in snp_cols:
+                self.X_train[f"{snp1}_{snp2}"] = self.X_train.loc[:, snp1].to_array() * self.X_train.loc[:, snp2].to_array()  
+                self.X_val[f"{snp1}_{snp2}"] = self.X_val.loc[:, snp1].to_array() * self.X_val.loc[:, snp2].to_array()  
+                self.X_test[f"{snp1}_{snp2}"] = self.X_test.loc[:, snp1].to_array() * self.X_test.loc[:, snp2].to_array()  
+        
+
+
+
+
+        
+
+
 
 @dataclass
 class ModelConfig:

@@ -228,7 +228,7 @@ def add_to_results_quantile(self, fold)-> None:
                 "phenotype": self.modelSettings.phenotype,
                 "fold": fold,
                 "corr": self.corr,
-                "model_id": self.modelSettings.model
+                "model_id": self.modelSettings.model_id
             },
             index=[0],
         )
@@ -239,7 +239,7 @@ def add_to_results_quantile(self, fold)-> None:
                 "fold": [fold]*3,
                 "corr": [self.corr, self.corr_lower, self.corr_upper],
                 "quantile": [0.5, 0.25, 0.75],
-                "model_id": [self.modelSettings.model]*3
+                "model_id": [self.modelSettings.model_id]*3
             },
             index = [0,1,2],
         )
@@ -249,6 +249,7 @@ def add_to_results_quantile(self, fold)-> None:
             self.modelSettings.phenotype,
             fold,
             self.corr,
+            self.modelSettings.model_id
         ]
         corr_list = [self.corr, self.corr_lower, self.corr_upper]
         quantile_list = [0.5, 0.25, 0.75]
@@ -259,7 +260,7 @@ def add_to_results_quantile(self, fold)-> None:
                 fold,
                 corr_list[i],
                 quantile_list[i],
-                self.modelSettings.model
+                self.modelSettings.model_id
             ]
  
 
