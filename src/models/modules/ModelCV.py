@@ -4,6 +4,7 @@ This file contains the ModelCV class and its variants
 which is used for cross-validation of models.
 """
 import pandas as pd
+import numpy as np
 from pathlib import Path
 from sklearn.model_selection import GroupKFold
 from scipy.stats import pearsonr
@@ -82,7 +83,7 @@ class ModelCV:
             )
             self.train_and_eval(dataset)
             self.add_to_results(fold)
-            self.save()
+        self.save()
 
     def add_to_results(self, fold)-> None:
         if fold == 0 or fold == "outer" or fold == "island_0":
@@ -282,6 +283,23 @@ def save_quantile(self):
 
     self.results.to_pickle(save_path.parent / "results.pkl")
     self.results_quantile.to_pickle(save_path.parent / "results_quantile.pkl")
+
+
+''' Benchagainst using the mean '''
+
+
+def train_and_eval_mean(self, dataset: Dataset):
+    y_mean = np.mean(dataset.y_train_val)
+    y_preds = np.repeat(y_mean, len(dataset.y_test))
+    self.corr = pearsonr(y_preds, dataset.y_test)[0]
+    mse = np.mean(np.abs(y_preds - dataset.y_test))
+    print(
+        f"FOLD {dataset.fold} finished, mse :{mse}"
+    )
+    if dataset.fold == "inner" or dataset.fold == 9:
+        import sys
+        sys.exit()
+
 
 
 

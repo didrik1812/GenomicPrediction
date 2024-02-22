@@ -207,11 +207,6 @@ class Dataset:
 
 
 
-
-        
-
-
-
 @dataclass
 class ModelConfig:
     """
@@ -241,6 +236,7 @@ class ModelConfig:
             "catboost": CatBoostRegressor,
             "linearresidtree": LinearResidTree,
             "INLA": "INLA",
+            "mean": "mean"
         }
 
         self.data_paths = {

@@ -3,9 +3,9 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: xgboostTarsusLinear_rtree_quantile
+name: MeanTarsusEGA
 phenotype: tarsus
-model: xgboost
+model: mean
 procedure: one-step
 
   #### HYPERPARAMETERS ####
@@ -15,12 +15,12 @@ searchspace: linearresidtree_space
   # FIXED HYPERPARAMETERS
 fixed:
   # booster: gblinear
-  # objective: reg:absoluteerror
+  objective: reg:absoluteerror
   early_stopping_rounds: 25
   n_estimators: 50
   # huber_slope: 0.1 # 1 is default value
-  objective: reg:quantileerror
-  quantile_alpha: [0.05, 0.5, 0.95]
+  # objective: reg:quantileerror
+  # quantile_alpha: [0.05, 0.5, 0.95]
 
     #### Settings for hyperparameter optimization ####
     # Number of iterations for hyperparameter optimizationhyp_settings

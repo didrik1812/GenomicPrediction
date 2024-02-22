@@ -44,6 +44,8 @@ def main():
     if "reg:quantileerror" in modelSettings.fixed_params.values():
         # dynamically create a ModelCVQuantile class with the suitable train_and_eval method for quantrile regression.
         modelCVobj = type("ModelCVQuantile", (modelCVobj,), {"train_and_eval": mcv.train_and_eval_quantile, "add_to_results": mcv.add_to_results_quantile, "save": mcv.save_quantile})
+    if modelSettings.model == "mean":
+        modelCVobj = type("ModelCVMean", (modelCVobj,), {"train_and_eval": mcv.train_and_eval_mean})
 
     modelCVinstance = modelCVobj(data_path, modelSettings)
     modelCVinstance.run()
