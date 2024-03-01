@@ -15,6 +15,7 @@ from sklearn.model_selection import GroupShuffleSplit
 import yaml
 import numpy as np
 from .CustomModels.LinearResidTree import LinearResidTree
+from .CustomModels.HuberContamination import HuberContamination 
 
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 
@@ -235,6 +236,7 @@ class ModelConfig:
             "lightgbm": LGBMRegressor,
             "catboost": CatBoostRegressor,
             "linearresidtree": LinearResidTree,
+            "hubercontamination": HuberContamination,
             "INLA": "INLA",
             "mean": "mean"
         }

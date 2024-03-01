@@ -3,9 +3,9 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: MeanTarsusEGA
-phenotype: tarsus
-model: mean
+name: hubercontaminationMasssMaeEGA
+phenotype: bodymass
+model: hubercontamination
 procedure: one-step
 
   #### HYPERPARAMETERS ####
