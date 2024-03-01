@@ -8,6 +8,14 @@ import seaborn as sns
 import matplotlib.ticker as ticker
 from ..models import utils
 import re
+from plotnine import (
+    ggplot,
+    aes,
+    geom_line,
+    geom_point,
+    theme_bw,
+    facet_grid
+)
 # GLOBAL VARIABLES
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 RESULTS_FROM_PROJECT_DIR = PROJECT_DIR / "data" / "external"
@@ -20,8 +28,8 @@ project_thesis_result_df_EG = pd.read_pickle(RESULTS_FROM_PROJECT_DIR / "project
 
 
 def rename_models(oldName: str):
-    # Split camelcase to list using regex
-    NameSplitted = re.findall(r'[a-zA-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', oldName)
+    # Split oldName (camelcase) to list using regex
+    NameSplitted = re.findall(r'[a-zA-Z](?:[a-z_]+|[A-Z]*(?=[A-Z]|$))', oldName)
 
     if NameSplitted[2] in ["EGA", "EG", "BV"]:
         newName = NameSplitted[0]
@@ -45,10 +53,21 @@ def compare_with_project(names: list, fig_name: str, EG: bool = True):
         title = "Breeding Value Correlation"
     make_boxplot(merged_df, title, fig_name)
 
+def cleveland_plot():
+    across_df = results_df[results_df.fold.isin(["outer", "inner"])]
+    across_df = across_df.dropna(subset = ["corr"])
+    across_df = across_df.rename(columns={"name": "model", "fold":"fold_train"})
+    across_df.model = across_df.model.apply(rename_models)
+    p = ggplot(across_df, aes(x = "corr", y = "model"))+\
+        geom_line(aes(group = "model"))+\
+        geom_point(aes(color = "fold_train"))+\
+        theme_bw()+\
+        facet_grid(".~phenotype")
+    p.save(PROJECT_DIR/ "reports"/ "figures"/ "across_pop_cleveland.pdf")
 
 def viz_across_pop():
     across_df = results_df[results_df.fold.isin(["outer", "inner"])]
-    across_df = across_df.dropna()
+    across_df = across_df.dropna(subset = ["corr"])
     across_df = across_df.rename(columns={"name": "model"})
     across_df.model = across_df.model.apply(rename_models)
     sns.set_style("whitegrid")
@@ -63,14 +82,21 @@ def viz_across_pop():
         y="corr",
         hue="model",
         col="fold",
+        legend=True,
     )
     # ax.yaxis.set_major_locator(ticker.MaxNLocator(10))
-    plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
+    # ax.despine(left=True)
+    # plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
     plt.ylabel("Correlation")
     plt.ylim(bottom=0)
     plt.tight_layout()
     plt.savefig(SAVE_FIGURE_PATH / "across_pop.pdf")
 
+def viz_island_for_island():
+    island_dfs = results_df[results_df.fold.isin([f"island_{i}" for i in range(10)])]
+    island_dfs = island_dfs.dropna(subset = ["corr"])
+    island_dfs = island_dfs.rename(columns={"name": "model"})
+    make_boxplot(island_dfs, "Island For Island Predictions", "IslandForIsland.pdf")
 
 def make_boxplot(df: pd.DataFrame, title: str, fig_name: str):
     sns.set_style("whitegrid")
@@ -90,5 +116,7 @@ def make_boxplot(df: pd.DataFrame, title: str, fig_name: str):
 if __name__ == "__main__":
     BVnames, EGnames, AcrossPopNames = utils.get_current_model_names()
     viz_across_pop()
+    cleveland_plot()
+    viz_island_for_island()
     compare_with_project(names=EGnames, fig_name="EG_compare_with_linear.pdf")
     compare_with_project(names=BVnames, fig_name="BV_compare_with_linear.pdf", EG=False)

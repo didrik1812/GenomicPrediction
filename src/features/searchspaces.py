@@ -53,10 +53,16 @@ xgboost_linear_space = {
     # "top_k": hp.randint("top_k", int(1e3), int(3e4) )
 }
 
+linearresidtree_space = {
+    **xgboost_space,
+    **xgboost_linear_space
+}
+
 search_spaces = {
     "xgboost_space": xgboost_space,
     "lightgbm_space": LGBM_space,
     "catboost_space": catboost_space,
     "GBM_space": GBM_space,
     "xgboost_linear_space": xgboost_linear_space,
+    "linearresidtree_space": linearresidtree_space
 }
