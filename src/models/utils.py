@@ -141,6 +141,7 @@ def get_current_model_names() -> tuple:
     return BVnames, EGnames, AcrossPopNames
 
 
+
 @dataclass
 class Dataset:
     """
@@ -287,4 +288,5 @@ class ModelConfig:
         self.train_across = config["train_across"]
         self.search_space = searchspaces.search_spaces[config["searchspace"]] 
         self.train_across_islands = config["train_across_islands"]
+
 
