@@ -12,10 +12,12 @@ import os
 from typing import Union
 from dataclasses import dataclass
 from sklearn.model_selection import GroupShuffleSplit
+from sklearn.linear_model import ElasticNet
 import yaml
 import numpy as np
 from .CustomModels.LinearResidTree import LinearResidTree
 from .CustomModels.HuberContamination import HuberContamination 
+from .CustomModels.LinearLGBM import LinearLGBM
 
 PROJECT_DIR = Path(__file__).resolve().parents[2]
 
@@ -205,6 +207,7 @@ class Dataset:
                 self.X_train[f"{snp1}_{snp2}"] = self.X_train.loc[:, snp1].to_array() * self.X_train.loc[:, snp2].to_array()  
                 self.X_val[f"{snp1}_{snp2}"] = self.X_val.loc[:, snp1].to_array() * self.X_val.loc[:, snp2].to_array()  
                 self.X_test[f"{snp1}_{snp2}"] = self.X_test.loc[:, snp1].to_array() * self.X_test.loc[:, snp2].to_array()  
+ 
         
 
 
@@ -238,8 +241,10 @@ class ModelConfig:
             "catboost": CatBoostRegressor,
             "linearresidtree": LinearResidTree,
             "hubercontamination": HuberContamination,
+            "linearlgbm": LinearLGBM,
             "INLA": "INLA",
-            "mean": "mean"
+            "mean": "mean",
+            "elasticnet": ElasticNet,
         }
 
         self.data_paths = {

@@ -38,15 +38,18 @@ class ModelCV:
         kf = GroupKFold(n_splits=self.n_splits)
         kfsplits = kf.split(X, groups=ringnrs)
         fold_names = [i for i in range(self.n_splits)]
-        for i, splits in enumerate(kfsplits):
-            yield splits, fold_names[i]
+        for i, (train, test) in enumerate(kfsplits):
+            yield train, test, fold_names[i]
 
     def train_and_eval(self, dataset: Dataset):
         trainer = ModelTrainer(modelSettings=self.modelSettings, data=dataset, max_evals
                 = self.modelSettings.hyp_settings["max_evals"])
         trainer.hypertrain()
         trainer.save(project_path=self.project_path)
-        y_preds = trainer.bestModel.predict(dataset.X_test, iteration_range= (0, trainer.bestModel.best_iteration))
+        try:
+            y_preds = trainer.bestModel.predict(dataset.X_test, iteration_range= (0, trainer.bestModel.best_iteration))
+        except:
+            y_preds = trainer.bestModel.predict(dataset.X_test) 
         self.corr = pearsonr(y_preds, dataset.y_test)[0]
         print(f"FOLD {dataset.fold} finished\t corr: {self.corr} ")
 

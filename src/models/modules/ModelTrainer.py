@@ -42,7 +42,11 @@ class ModelTrainer:
         self.bestModel = self.modelSettings.model(
             **{**self.modelSettings.fixed_params, **best}
         )
-        self.bestModel.fit(self.data.X_train, self.data.y_train, eval_set = [(self.data.X_val, self.data.y_val)], verbose = False)
+        try:
+            self.bestModel.fit(self.data.X_train, self.data.y_train, eval_set = [(self.data.X_val, self.data.y_val)], verbose = False)
+        except TypeError:
+            self.bestModel.fit(self.data.X_train, self.data.y_train)
+
 
     def objective(self, params):
         merged_params = {
@@ -50,8 +54,13 @@ class ModelTrainer:
             **params
         }
         model = self.modelSettings.model(**merged_params)
-        model.fit(self.data.X_train, self.data.y_train, eval_set = [(self.data.X_val, self.data.y_val)], verbose = False)
-        y_pred = model.predict(self.data.X_val, iteration_range= (0, model.best_iteration))
+        try:
+            model.fit(self.data.X_train, self.data.y_train, eval_set = [(self.data.X_val, self.data.y_val)], verbose = False)
+            y_pred = model.predict(self.data.X_val, iteration_range= (0, model.best_iteration))
+        except TypeError:
+            model.fit(self.data.X_train, self.data.y_train )
+            y_pred = model.predict(self.data.X_val)
+
         mse = np.mean((y_pred - self.data.y_val) ** 2)
         mae = np.mean(np.abs(y_pred - self.data.y_val))
         return {"loss": mae, "status": STATUS_OK}
@@ -59,8 +68,11 @@ class ModelTrainer:
     def save(self, project_path: Path):
         path = project_path / "models" / self.modelSettings.name
         path.mkdir(parents=True, exist_ok=True)
-        self.bestModel.save_model(path / f"{self.data.fold}.json")
-        # pickle.dump(self.BestModel, open(path / f"{self.data.fold}.pkl", "wb"))
+        try:
+            self.bestModel.save_model(path / f"{self.data.fold}.json")
+        except:
+            import pickle
+            pickle.dump(self.BestModel, open(path / f"{self.data.fold}.pkl", "wb"))
 
 
 class INLATrainer(ModelTrainer):
