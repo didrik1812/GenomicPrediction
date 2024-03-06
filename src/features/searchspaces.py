@@ -44,6 +44,19 @@ LGBM_space = {
     "n_estimators": hp.randint("n_estimators", 20, 205),
 }
 
+linearlgbm_space = {
+    "learning_rate": hp.loguniform("learning_rate", -7, 0),
+    "num_leaves": hp.randint("num_leaves", 10, 100),
+    "colsample_bytree": hp.uniform("colsample_bytree", 0.5, 1.0),
+    "subsample": hp.uniform("subsample ", 0.5, 1.0),
+    "min_sum_hessian_in_leaf": hp.loguniform("min_sum_hessian_in_leaf", -10, 2),
+    "min_data_in_leaf": hp.randint("min_data_in_leaf", 1,  100 ),
+    "reg_alpha": hp.loguniform("reg_alpha", -8, 2),
+    "reg_lambda": hp.loguniform("reg_lambda", -8, 2),
+    "max_depth": hp.randint("max_depth", 15, 500),
+    "n_estimators": hp.randint("n_estimators", 20, 205),
+}
+
 xgboost_linear_space = {
     "lambda": hp.loguniform("lambda", -8, 2),
     "alpha": hp.loguniform("alpha", -8, 2),
@@ -72,4 +85,5 @@ search_spaces = {
     "xgboost_linear_space": xgboost_linear_space,
     "linearresidtree_space": linearresidtree_space,
     "elasticnet_space": elasticnet_space,
+    "linearlgbm_space":linearlgbm_space,
 }

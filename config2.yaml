@@ -3,26 +3,26 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: linearlgbmMassEG
-phenotype: bodymass
-model: linearlgbm
+name: hubercontaminationTarsusEG
+phenotype: tarsus
+model: hubercontamination
 procedure: one-step
 
   #### HYPERPARAMETERS ####
   # TUNEABLE HYPERPARAMETERS, DEFINED BY SEARCHSPACE
-searchspace: linearlgbm_space
+searchspace: linearresidtree_space
 
   # FIXED HYPERPARAMETERS
 fixed:
   # fit_intercept: True
   # booster: gblinear
   # objective: regression
-  force_col_wise: true
+  # force_col_wise: true
   # data_sample_strategy: goss
   # nthread: 4
-  # early_stopping_rounds: 25
+  early_stopping_rounds: 25
   # n_estimators: 50
-  # objective: reg:absoluteerror
+  objective: reg:absoluteerror
   # huber_slope: 0.1 # 1 is default value
   # objective: reg:quantileerror
   # quantile_alpha: [0.05, 0.5, 0.95]

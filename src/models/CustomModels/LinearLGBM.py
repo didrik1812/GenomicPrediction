@@ -24,6 +24,6 @@ class LinearLGBM:
         return self._model.predict(X, num_iteration=self._model.best_iteration)
 
     def save_model(self, path:Path):
-        self._model.save_model(path.parent / path.stem + ".txt")
+        self._model.save_model(path.parent / (path.stem + ".txt"))
 
 
