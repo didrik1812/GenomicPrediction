@@ -3,8 +3,8 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: linearlgbmMassEG
-phenotype: bodymass
+name: linearlgbmTarsusEGA
+phenotype: tarsus
 model: linearlgbm
 procedure: one-step
 
@@ -34,6 +34,6 @@ hyp_settings:
 
 ### Train and test between populations? ###
 # If yes, the model will be trained on one population and tested on another
-train_across: no
+train_across: yes
 # If yes, the model will be trained on all island except one and tested on the remaining island
 train_across_islands: no
