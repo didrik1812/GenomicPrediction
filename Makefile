@@ -1,21 +1,31 @@
-.PHONY: all tarsusEG massEG tarsusBV massBV train INLA fig
+.PHONY: all tarsusEG massEG tarsusBV massBV tarsusBV_70K massBV_70K train INLA fig
 
 all: train INLA fig
 train: data config.yaml
 	nice python -m src.models.train_model
 
-data: tarsusEG massEG tarsusBV massBV
+data: tarsusEG massEG tarsusBV massBV tarsusBV_70K massBV_70K
 
 
 massBV: data/processed/massBV.feather
 
 tarsusBV: data/processed/tarsusBV.feather
 
+tarsusBV_70K: data/processed/tarsusBV_70K.feather
+
+massBV_70K: data/processed/massBV_70K.feather 
+
 data/processed/massBV.feather: src/data/dataloader.R
 	nice Rscript --vanilla src/data/dataloader.R mass
 
 data/processed/tarsusBV.feather: src/data/dataloader.R
 	nice Rscript --vanilla src/data/dataloader.R tarsus
+
+data/processed/massBV_70K.feather: src/data/dataloader.R
+	nice Rscript --vanilla src/data/dataloader.R mass TRUE
+
+data/processed/tarsusBV_70K.feather: src/data/dataloader.R
+	nice Rscript --vanilla src/data/dataloader.R tarsus TRUE
 
 massEG: data/processed/massEG.feather
 

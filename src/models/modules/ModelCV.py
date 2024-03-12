@@ -42,8 +42,7 @@ class ModelCV:
             yield train, test, fold_names[i]
 
     def train_and_eval(self, dataset: Dataset):
-        trainer = ModelTrainer(modelSettings=self.modelSettings, data=dataset, max_evals
-                = self.modelSettings.hyp_settings["max_evals"])
+        trainer = ModelTrainer(modelSettings=self.modelSettings, data=dataset, max_evals= self.modelSettings.hyp_settings["max_evals"])
         trainer.hypertrain()
         trainer.save(project_path=self.project_path)
         try:

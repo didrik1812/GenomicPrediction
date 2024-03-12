@@ -43,7 +43,8 @@ class ModelTrainer:
             **{**self.modelSettings.fixed_params, **best}
         )
         try:
-            self.bestModel.fit(self.data.X_train, self.data.y_train, eval_set = [(self.data.X_val, self.data.y_val)], verbose = False)
+            self.bestModel.fit(self.data.X_train, self.data.y_train, eval_set = [(self.data.X_val, self.data.y_val)],
+                    verbose = False)
         except TypeError:
             self.bestModel.fit(self.data.X_train, self.data.y_train)
 
@@ -55,7 +56,8 @@ class ModelTrainer:
         }
         model = self.modelSettings.model(**merged_params)
         try:
-            model.fit(self.data.X_train, self.data.y_train, eval_set = [(self.data.X_val, self.data.y_val)], verbose = False)
+            model.fit(self.data.X_train, self.data.y_train, eval_set = [(self.data.X_val, self.data.y_val)], verbose
+                    = False)
             y_pred = model.predict(self.data.X_val, iteration_range= (0, model.best_iteration))
         except TypeError:
             model.fit(self.data.X_train, self.data.y_train )

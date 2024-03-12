@@ -272,6 +272,16 @@ class ModelConfig:
             / "data"
             / "processed"
             / "massEG.feather",
+            "bodymass_70k two-step": self.project_path
+            / "data"
+            / "processed"
+            / "massBV_70k.feather",
+            "tarsus_70k two-step": self.project_path
+            / "data"
+            / "processed"
+            / "tarsusBV_70k.feather",
+
+
         }
         self.handle_yaml()
 
@@ -280,7 +290,7 @@ class ModelConfig:
             config = yaml.safe_load(f)
 
         self.data_path = self.data_paths[
-            config["phenotype"] + " " + config["procedure"]
+            config["phenotype"] + config.get("data", "") + " " + config["procedure"]
         ]
         self.name = config["name"]
         self.model_id = config["model"]
