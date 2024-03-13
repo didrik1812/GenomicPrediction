@@ -1,4 +1,5 @@
 from hyperopt import hp
+import numpy as np
 
 GBM_space = {
     "learning_rate": hp.loguniform("learning_rate", -3, -1),
@@ -56,6 +57,27 @@ linearlgbm_space = {
     "max_depth": hp.randint("max_depth", 15, 500),
     "n_estimators": hp.randint("n_estimators", 20, 205),
 }
+lgbm_space = {
+    'n_estimators': np.arange(300, 600, 20),#[ 150, 200, 300, ],
+    'learning_rate': np.arange(0.01, 0.061, 0.005),# [0.03, 0.05, 0.07, ],
+    'num_leaves': np.arange(10, 30),# [5, 7, 10, 15, 20,],
+    'min_child_weight': np.arange(0.02, 0.1, 0.01),#[  0.1, 0.2, ],
+    'min_child_samples': [ 30, 40, 50, 60, 80, 100, 120, 150, 170, 200, 300, 500, 700, ], 
+    'reg_lambda': [0, 1e-5, 1e-4, 1e-3, 1e-2, 0.1,  ],
+    'reg_alpha':  [0, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, ],
+    'linear_tree': [True, ],
+    'subsample': np.arange(0.4, 0.901, 0.05),#[0.3, 0.5,  0.8],
+    'subsample_freq': [1],
+    'colsample_bytree': np.arange(0.2, 0.81, 0.05), #[0.5, 0.8, ],#0.3, 0.5, 0.8],
+    'colsample_bynode': np.arange(0.2, 1.01, 0.05), #[0.5, 0.8, ],#0.3, 0.5, 0.8],
+    'linear_lambda': [1e-3, 3e-3, 1e-2, 3e-2, 0.1,],
+    # 'max_bins': np.arange(120, 400, 20),
+    # 'min_data_in_bin': np.exp(np.arange(np.log(3), np.log(12), 0.1)).astype(int), #np.arange(2, 10),# [2, 3, 4, 5, 10],
+                # [ 192, 
+                 #255, 255, 384, 512],
+    'min_data_per_group': [10, 20, 50, 100],
+    'verbose': [-1],
+}
 
 xgboost_linear_space = {
     "lambda": hp.loguniform("lambda", -8, 2),
@@ -86,4 +108,5 @@ search_spaces = {
     "linearresidtree_space": linearresidtree_space,
     "elasticnet_space": elasticnet_space,
     "linearlgbm_space":linearlgbm_space,
+    "lgbm_space": lgbm_space,
 }

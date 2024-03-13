@@ -3,25 +3,24 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: xgboostMass_70kBV
+name: linearlgbmMass_70kBV
 phenotype: bodymass
-model: xgboost
+model: lightgbm
 procedure: two-step
 data: _70k
   #### HYPERPARAMETERS ####
   # TUNEABLE HYPERPARAMETERS, DEFINED BY SEARCHSPACE
-searchspace: xgboost_space
+searchspace: lgbm_space
 
   # FIXED HYPERPARAMETERS
 fixed:
   # fit_intercept: True
   # booster: gblinear
-  booster: gbtree
   # objective: regression
-  # force_col_wise: true
+  force_col_wise: true
   # data_sample_strategy: goss
   # nthread: 4
-  early_stopping_rounds: 25
+  # early_stopping_rounds: 25
   # n_estimators: 50
   # objective: reg:absoluteerror
   # huber_slope: 0.1 # 1 is default value
