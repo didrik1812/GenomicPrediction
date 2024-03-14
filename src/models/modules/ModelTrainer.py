@@ -37,7 +37,7 @@ class ModelTrainer:
     def hypertrain(self):
         current_model = self.modelSettings.model(**self.modelSettings.fixed_params)
         hyp_cv_split = self.splitter()
-        self.bestModel = RandomizedSearchCV(current_model, self.modelSettings.search_space, n_jobs = 5, n_iter = 10, cv = hyp_cv_split, verbose = 2)
+        self.bestModel = RandomizedSearchCV(current_model, self.modelSettings.search_space, n_jobs = 5, n_iter = 10, cv = hyp_cv_split, verbose = 0)
         self.bestModel.fit(self.data.X_train_val, self.data.y_train_val)
 
     def save(self, project_path: Path):

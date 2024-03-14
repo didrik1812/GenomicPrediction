@@ -3,8 +3,8 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: linearlgbmMass_70kBV
-phenotype: bodymass
+name: linearlgbmTarsus_70kBV
+phenotype: tarsus
 model: lightgbm
 procedure: two-step
 data: _70k
