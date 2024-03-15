@@ -93,7 +93,7 @@ def viz_across_pop():
     plt.savefig(SAVE_FIGURE_PATH / "across_pop.pdf")
 
 def viz_island_for_island():
-    island_dfs = results_df[results_df.fold.isin([f"island_{i}" for i in range(10)])]
+    island_dfs = results_df[results_df.fold.isin([f"island_" ])]
     island_dfs = island_dfs.dropna(subset = ["corr"])
     island_dfs = island_dfs.rename(columns={"name": "model"})
     make_boxplot(island_dfs, "Island For Island Predictions", "IslandForIsland.pdf")
