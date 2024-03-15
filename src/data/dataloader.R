@@ -96,6 +96,7 @@ if (use_big_dataset == T){
                mass = body_mass,
                tarsus = thr_tarsus,
                island_current = locality,
+               hatchisland = first_locality,
                sex = adult_sex
         )
     d.morph$age <- d.morph$max_year - d.morph$hatch_year
@@ -174,6 +175,11 @@ d.ID.pheno <- data.frame(ringnr = d.mean.pheno[, 1], ID.mass = ranef(r.pheno.lme
 
 # We take as the new phenotype the estimated ID effect:
 d.ID.pheno <- data.frame(ringnr = d.mean.pheno[, 1], ID = d.ID.pheno[, 2], mean_pheno = d.mean.pheno$mean_pheno)
+tmp_hatchisland_ringnr_df <- d.morph[, c("ringnr","hatchisland")]
+tmp_hatchisland_ringnr_df <- tmp_hatchisland_ringnr_df %>%
+    distinct(ringnr, .keep_all = T)
+d.ID.pheno <- d.ID.pheno %>%
+    merge(tmp_hatchisland_ringnr_df, by = "ringnr")
 
 #############################################################
 ### Now we also load the raw SNP data matrix
@@ -200,7 +206,7 @@ length(unique(d.ID.pheno$ringnr))
 
 # Generate a data frame where individuals with ring numbers from d.ID.res.mass are contained, as well as the phenotype (here the residuals from the lmer analysis with mass as response)
 # d.dat <- merge(d.ID.pheno[, c("ringnr", "ID")], SNP.matrix.reduced, by = "ringnr")
-d.dat.full <- merge(d.ID.pheno[, c("ringnr", "ID", "mean_pheno")], SNP.matrix, by = "ringnr")
+d.dat.full <- merge(d.ID.pheno[, c("ringnr", "ID", "mean_pheno", "hatchisland")], SNP.matrix, by = "ringnr")
 # head(colnames(d.dat.full), 10)
 # SAVE THE FULL DATA SET:
 write_feather(d.dat.full, save_name) 

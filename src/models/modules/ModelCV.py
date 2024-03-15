@@ -73,6 +73,9 @@ class ModelCV:
                 ringnrs.iloc[train_val_index],
                 ringnrs.iloc[test_index],
             )
+            if self.modelSettings.procedure == "two-step":
+                X_train_val = X_train_val.drop(columns = ["hatchisland"])
+                X_test = X_test.drop(columns= ["hatchisland"])
 
             dataset = Dataset(
                 X_train_val=X_train_val,
