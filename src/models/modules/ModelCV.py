@@ -157,8 +157,10 @@ class ModelAcrossIsland(ModelCV):
         super().__init__(data_path, modelSettings, n_splits)
 
     def splitter(self, X, ringnrs):
-        islands = X.hatchisland.unique()
-        islands = islands[islands >= 5]
+        # islands = X.hatchisland.unique()
+        # islands = islands[islands >= 5]
+        islands = [20, 22, 23, 24, 26, 27, 28,38]
+        X = X.loc[X.hatchisland.isin(islands)]
         for i in range(len(islands)):
             train_val_index = X.index[X.hatchisland != islands[i]]
             test_index = X.index[X.hatchisland == islands[i]]

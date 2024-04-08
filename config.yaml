@@ -10,7 +10,7 @@ procedure: two-step
 data: _70k
   #### HYPERPARAMETERS ####
   # TUNEABLE HYPERPARAMETERS, DEFINED BY SEARCHSPACE
-searchspace: lgbm_space
+searchspace: lgbm_space 
 
   # FIXED HYPERPARAMETERS
 fixed:
@@ -26,6 +26,7 @@ fixed:
   # huber_slope: 0.1 # 1 is default value
   # objective: reg:quantileerror
   # quantile_alpha: [0.05, 0.5, 0.95]
+  # objective: reg:squarederror
 
     #### Settings for hyperparameter optimization ####
     # Number of iterations for hyperparameter optimizationhyp_settings

@@ -60,7 +60,7 @@ linearlgbm_space = {
 lgbm_space = {
     'n_estimators': np.arange(300, 600, 20),#[ 150, 200, 300, ],
     'learning_rate': np.arange(0.01, 0.061, 0.005),# [0.03, 0.05, 0.07, ],
-    'num_leaves': np.arange(10, 30),# [5, 7, 10, 15, 20,],
+    'max_depth': np.arange(2, 25),# [5, 7, 10, 15, 20,],
     'min_child_weight': np.arange(0.02, 0.1, 0.01),#[  0.1, 0.2, ],
     'min_child_samples': [ 30, 40, 50, 60, 80, 100, 120, 150, 170, 200, 300, 500, 700, ], 
     'reg_lambda': [0, 1e-5, 1e-4, 1e-3, 1e-2, 0.1,  ],
@@ -77,6 +77,23 @@ lgbm_space = {
                  #255, 255, 384, 512],
     'min_data_per_group': [10, 20, 50, 100],
     'verbose': [-1],
+}
+
+
+
+xgboost_rand_space = {
+    'n_estimators': np.arange(100, 300, 20),#[ 150, 200, 300, ],
+    'learning_rate': np.arange(0.001, 0.061, 0.005),# [0.03, 0.05, 0.07, ],
+    'num_leaves': np.arange(10, 30),# [5, 7, 10, 15, 20,],
+    'min_child_weight': np.arange(0.5, 15, 0.5),#[  0.1, 0.2, ],
+    'alpha': [0, 1e-5, 1e-4, 1e-3, 1e-2, 0.1,  ],
+    'lambda':  [0, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, ],
+    'subsample': np.arange(0.4, 0.901, 0.05),#[0.3, 0.5,  0.8],
+    'subsample_freq': [1],
+    'colsample_bytree': np.arange(0.2, 0.81, 0.05), #[0.5, 0.8, ],#0.3, 0.5, 0.8],
+    'colsample_bynode': np.arange(0.2, 1.01, 0.05), #[0.5, 0.8, ],#0.3, 0.5, 0.8],
+    'gamma': [1e-3, 3e-3, 1e-2, 3e-2, 0.1, ],
+    'verbosity': [0],
 }
 
 xgboost_linear_space = {
@@ -109,4 +126,5 @@ search_spaces = {
     "elasticnet_space": elasticnet_space,
     "linearlgbm_space":linearlgbm_space,
     "lgbm_space": lgbm_space,
+    "xgboost_rand_space" : xgboost_rand_space, 
 }
