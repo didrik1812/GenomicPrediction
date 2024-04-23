@@ -96,6 +96,24 @@ xgboost_rand_space = {
     'verbosity': [0],
 }
 
+xgboost_linear_rand_space = {
+    "lambda": np.logspace(-8,2, num = 10),
+    "alpha": np.logspace(-8, 2, num = 10),
+    "n_estimators": np.arange(20, 205, 20),
+    "eta": np.logspace(-7, 0, num = 20),
+    # top_k can only be used with greedy or thrifty feature selector
+    # "top_k": hp.randint("top_k", int(1e3), int(3e4) )
+}
+
+catboost_rand_space = {
+    "learning_rate": np.logspace(-7, 0,num = 20),
+    "random_strength": np.linspace(0, 20, num = 10),
+    "l2_leaf_reg": np.logspace(1, np.log(10), num = 10),
+    "bagging_temperature": np.linspace(0, 1, num = 10),
+    "leaf_estimation_iterations": np.linspace( 1, 10, num = 5),
+    "iterations": np.arange(100, 500, 40)
+}
+
 xgboost_linear_space = {
     "lambda": hp.loguniform("lambda", -8, 2),
     "alpha": hp.loguniform("alpha", -8, 2),
@@ -127,4 +145,7 @@ search_spaces = {
     "linearlgbm_space":linearlgbm_space,
     "lgbm_space": lgbm_space,
     "xgboost_rand_space" : xgboost_rand_space, 
+    "xgboost_linear_rand_space" : xgboost_linear_rand_space, 
+    "catboost_rand_space" : catboost_rand_space, 
+    
 }

@@ -49,7 +49,7 @@ class ModelCV:
             y_preds = trainer.bestModel.predict(dataset.X_test, iteration_range= (0, trainer.bestModel.best_iteration))
         except:
             y_preds = trainer.bestModel.predict(dataset.X_test) 
-        self.corr = pearsonr(y_preds, dataset.y_test)[0]
+        self.corr = pearsonr(y_preds, dataset.mean_pheno_test)[0]
         print(f"FOLD {dataset.fold} finished\t corr: {self.corr} ")
 
     def run(self):
@@ -60,7 +60,7 @@ class ModelCV:
             data=data, phenotype=self.modelSettings.phenotype
             )
         else:
-            X, y, ringnrs = prep_data_before_train(
+            X, y, ringnrs, mean_pheno = prep_data_before_train(
                 data=data, phenotype=self.modelSettings.phenotype
             )
 
@@ -73,6 +73,8 @@ class ModelCV:
                 ringnrs.iloc[train_val_index],
                 ringnrs.iloc[test_index],
             )
+            mean_pheno_test = mean_pheno.iloc[test_index]
+
             if self.modelSettings.procedure == "two-step":
                 X_train_val = X_train_val.drop(columns = ["hatchisland"])
                 X_test = X_test.drop(columns= ["hatchisland"])
@@ -85,6 +87,7 @@ class ModelCV:
                 ringnr_train_val=ringnr_train_val,
                 ringnr_test=ringnr_test,
                 fold=fold,
+                mean_pheno_test=mean_pheno_test
             )
             self.train_and_eval(dataset)
             self.add_to_results(fold)
@@ -116,11 +119,11 @@ class ModelCV:
         save_path = self.project_path / "models" / self.modelSettings.name
         shutil.copyfile(self.modelSettings.yaml_path, save_path / "config.yaml")
 
-        old_results = pd.read_pickle(save_path.parent / "results.pkl")
+        old_results = pd.read_pickle(save_path.parent / "correct_restult.pkl")
         self.results = pd.concat([old_results, self.results], axis=0)
         self.results = self.results.reset_index(drop = True)
         self.results = self.results.drop_duplicates()
-        self.results.to_pickle(save_path.parent / "results.pkl")
+        self.results.to_pickle(save_path.parent / "correct_restult.pkl")
 
 
 class ModelOuterInner(ModelCV):

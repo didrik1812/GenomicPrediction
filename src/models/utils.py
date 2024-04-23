@@ -58,10 +58,12 @@ def prep_data_before_train(data: pd.DataFrame, phenotype: str) -> tuple:
         X.island_current = X.island_current.astype("int")
     except AttributeError:
         pass
+    Y = (Y - np.mean(Y))/np.std(Y)
     X = X.fillna(0)
     X.loc[:, snp_cols] = X.loc[:, snp_cols].astype("int")
     ringnrs = data.ringnr
-    return X, Y, ringnrs
+    mean_pheno = data.mean_pheno
+    return X, Y, ringnrs, mean_pheno
 
 
 
@@ -172,6 +174,7 @@ class Dataset:
     y_val: pd.DataFrame  = pd.DataFrame()
     ringnr_train: pd.DataFrame = pd.DataFrame()
     ringnr_val: pd.DataFrame = pd.DataFrame()
+    mean_pheno_test: pd.DataFrame
 
     def __post_init__(self):
         kf = GroupShuffleSplit(n_splits=2)

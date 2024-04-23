@@ -10,12 +10,13 @@ store_path <- "~/../../../../work/didrikls/GenomicPrediction/data/processed/"
 setwd("~/../../../../work/didrikls/GenomicPrediction/src")
 args <- commandArgs(trailingOnly = TRUE)
 phenotype <- args[1]
-if (length(args)==2){    
+if (length(args) == 2) {
     use_big_dataset <- TRUE
     print("using big dataset")
-}else{
+} else {
     use_big_dataset <- FALSE
 }
+
 
 # Packages needed for the script to run:
 
@@ -85,31 +86,31 @@ library(dplyr)
 # library(RSpectra)
 # library(dplyr)
 
-if (use_big_dataset == T){
+if (use_big_dataset == T) {
     print("using qc.raw")
     SNP_data_path <- "../data/raw/qc.raw"
     save_name <- paste(store_path, phenotype, "BV_70k.feather", sep = "")
-    d.morph <- read.table("../data/raw/AdultMorphology_20240201_fix.csv", header=T, sep=";")# sep="\t")
+    save_dd_name <- paste(store_path, phenotype, "Morph_70k.feather", sep = "")
+    d.morph <- read.table("../data/raw/AdultMorphology_20240201_fix.csv", header = T, sep = ";") # sep="\t")
     # Rename to match the previous dataset
-    d.morph = d.morph %>%
+    d.morph <- d.morph %>%
         rename(
-               mass = body_mass,
-               tarsus = thr_tarsus,
-               island_current = locality,
-               hatchisland = first_locality,
-               sex = adult_sex
+            mass = body_mass,
+            tarsus = thr_tarsus,
+            island_current = locality,
+            hatchisland = first_locality,
+            sex = adult_sex
         )
     d.morph$age <- d.morph$max_year - d.morph$hatch_year
-    
-    # Drop the southern_islands
-    d.morph = d.morph %>%
-        dplyr::filter(!island_current %in% c(60, 61, 63, 67, 68))
 
-}else{
-    
-    data_path = "~/../../../../work/didrikls/ProjectThesis/data/"
+    # Drop the southern_islands
+    d.morph <- d.morph %>%
+        dplyr::filter(!island_current %in% c(60, 61, 63, 67, 68))
+} else {
+    data_path <- "~/../../../../work/didrikls/ProjectThesis/data/"
     SNP_data_path <- paste(data_path, "Helgeland_01_2018_QC.raw", sep = "")
     save_name <- paste(store_path, phenotype, "BV.feather", sep = "")
+    save_dd_name <- paste(store_path, phenotype, "Morph.feather", sep = "")
     # Data preparation helper script:
     source("data/h_dataPrep.r")
     # Some data wranging to ensure that the IDs in the data correspond to the IDs in the A and G-matrices (nothing to worry about):
@@ -143,22 +144,21 @@ names(d.pheno) <- c("ringnr", phenotype)
 d.mean.pheno <- as.data.frame(d.pheno %>%
     group_by(ringnr) %>%
     summarize(mean_pheno = mean(eval(as.symbol(phenotype)))))
-if (use_big_dataset == T){
-
-  formula.pheno.lmm <- eval(as.symbol(phenotype)) ~   sex +  month + age +  
-    (1 | island_current) +
-    (1 | hatch_year) +
-    (1 | ringnr)
-}else{
-  
-  formula.pheno.lmm <- eval(as.symbol(phenotype)) ~   sex + FGRM + month + age + outer + other +
-    (1 | island_current) +
-    (1 | hatchyear) +
-    (1 | ringnr)
+if (use_big_dataset == T) {
+    formula.pheno.lmm <- eval(as.symbol(phenotype)) ~   sex + month + age +
+        (1 | island_current) +
+        (1 | hatch_year) +
+        (1 | ringnr)
+} else {
+    formula.pheno.lmm <- eval(as.symbol(phenotype)) ~   sex + FGRM + month + age + outer + other +
+        (1 | island_current) +
+        (1 | hatchyear) +
+        (1 | ringnr)
 }
 
 library(lme4)
 dd <- d.morph[!is.na(d.morph[phenotype]), ]
+write_feather(dd, save_dd_name)
 r.pheno.lmer <- lmer(formula.pheno.lmm, data = dd)
 
 # Residuals
@@ -175,7 +175,7 @@ d.ID.pheno <- data.frame(ringnr = d.mean.pheno[, 1], ID.mass = ranef(r.pheno.lme
 
 # We take as the new phenotype the estimated ID effect:
 d.ID.pheno <- data.frame(ringnr = d.mean.pheno[, 1], ID = d.ID.pheno[, 2], mean_pheno = d.mean.pheno$mean_pheno)
-tmp_hatchisland_ringnr_df <- d.morph[, c("ringnr","hatchisland")]
+tmp_hatchisland_ringnr_df <- d.morph[, c("ringnr", "hatchisland")]
 tmp_hatchisland_ringnr_df <- tmp_hatchisland_ringnr_df %>%
     distinct(ringnr, .keep_all = T)
 d.ID.pheno <- d.ID.pheno %>%
@@ -196,11 +196,13 @@ dim(SNP.matrix)
 set.seed(323422)
 # sum(unique(d.pheno$ringnr) %in% unique(d.map$ringnr))
 # sum(d.ID.pheno$ringnr %in% SNP.matrix$ringnr)
-length(unique(d.ID.pheno$ringnr))
-
+# length(unique(d.ID.pheno$ringnr))
+# length(unique(SNP.matrix$ringnr))
+# head(SNP.matrix$ringnr)
+# head(d.ID.pheno$ringnr)
 # SNP.matrix.reduced <- cbind(
-    # SNP.matrix[, 1:6],
-    # (SNP.matrix[, sort(sample(7:181369, no_snps, replace = FALSE))])
+# SNP.matrix[, 1:6],
+# (SNP.matrix[, sort(sample(7:181369, no_snps, replace = FALSE))])
 # )
 
 
@@ -209,4 +211,4 @@ length(unique(d.ID.pheno$ringnr))
 d.dat.full <- merge(d.ID.pheno[, c("ringnr", "ID", "mean_pheno", "hatchisland")], SNP.matrix, by = "ringnr")
 # head(colnames(d.dat.full), 10)
 # SAVE THE FULL DATA SET:
-write_feather(d.dat.full, save_name) 
+write_feather(d.dat.full, save_name)
