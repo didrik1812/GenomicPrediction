@@ -38,7 +38,7 @@ print(f"{len(mods)} models loaded")
 data = pd.read_feather(data_path)
 
 
-X, y, ringnrs = prep_data_before_train(
+X, y, ringnrs, mean_pheno = prep_data_before_train(
     data=data, phenotype=modelSettings.phenotype
 )
 if modelSettings.procedure == "two-step":
@@ -48,6 +48,7 @@ shap_values = np.zeros(shape = (len(mods), len(y), len(X.columns)))
 print("starting shap")
 # for i in range(len(mods)):
 #     # explainer = shap.Explainer(mods[i])
+    # explainer = shap.KernelExplainer(mods[i])
 #     explainer = shap.TreeExplainer(mods[i])
 #     shap_values[i] = explainer.shap_values(X)
 

@@ -71,6 +71,11 @@ lgbm_space = {
     'colsample_bytree': np.arange(0.2, 0.81, 0.05), #[0.5, 0.8, ],#0.3, 0.5, 0.8],
     'colsample_bynode': np.arange(0.2, 1.01, 0.05), #[0.5, 0.8, ],#0.3, 0.5, 0.8],
     'linear_lambda': [1e-3, 3e-3, 1e-2, 3e-2, 0.1,],
+    # 'data_sample_strategy': ["goss",],
+    # 'top_rate': [0.7,], 
+    # 'other_rate': [0.3,],
+    
+
     # 'max_bins': np.arange(120, 400, 20),
     # 'min_data_in_bin': np.exp(np.arange(np.log(3), np.log(12), 0.1)).astype(int), #np.arange(2, 10),# [2, 3, 4, 5, 10],
                 # [ 192, 
@@ -106,12 +111,12 @@ xgboost_linear_rand_space = {
 }
 
 catboost_rand_space = {
-    "learning_rate": np.logspace(-7, 0,num = 20),
+    "learning_rate": np.logspace(-7, 0,num =20),
     "random_strength": np.linspace(0, 20, num = 10),
     "l2_leaf_reg": np.logspace(1, np.log(10), num = 10),
     "bagging_temperature": np.linspace(0, 1, num = 10),
-    "leaf_estimation_iterations": np.linspace( 1, 10, num = 5),
-    "iterations": np.arange(100, 500, 40)
+    "leaf_estimation_iterations": np.linspace( 1, 10, num = 5, dtype=np.int64),
+    "iterations": np.arange(100, 500, 40, dtype=np.int64)
 }
 
 xgboost_linear_space = {

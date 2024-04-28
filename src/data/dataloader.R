@@ -21,7 +21,8 @@ if (length(args) == 2) {
 # Packages needed for the script to run:
 
 if (!require(nadiv)) {
-    install.packages("nadiv", repos = "http://cran.us.r-project.org", dependencies = TRUE)
+    # install.packages("nadiv", repos = "http://cran.us.r-project.org", dependencies = TRUE)
+   library(remotes); install_github("matthewwolak/nadiv", ref = "devel")
 }
 if (!require(pedigree)) {
     install.packages("pedigree", repos = "http://cran.us.r-project.org", dependencies = TRUE)
@@ -63,7 +64,7 @@ if (!require(feather)) {
 # Sys.setenv(NOT_CRAN = "true")
 # install.packages("arrow")
 
-library(nadiv)
+# library(nadiv)
 library(pedigree)
 library(MASS)
 library(MCMCpack)
@@ -89,6 +90,7 @@ library(dplyr)
 if (use_big_dataset == T) {
     print("using qc.raw")
     SNP_data_path <- "../data/raw/qc.raw"
+    ringnr_loc <- 1
     save_name <- paste(store_path, phenotype, "BV_70k.feather", sep = "")
     save_dd_name <- paste(store_path, phenotype, "Morph_70k.feather", sep = "")
     d.morph <- read.table("../data/raw/AdultMorphology_20240201_fix.csv", header = T, sep = ";") # sep="\t")
@@ -109,6 +111,7 @@ if (use_big_dataset == T) {
 } else {
     data_path <- "~/../../../../work/didrikls/ProjectThesis/data/"
     SNP_data_path <- paste(data_path, "Helgeland_01_2018_QC.raw", sep = "")
+    ringnr_loc <- 2
     save_name <- paste(store_path, phenotype, "BV.feather", sep = "")
     save_dd_name <- paste(store_path, phenotype, "Morph.feather", sep = "")
     # Data preparation helper script:
@@ -190,15 +193,14 @@ library(data.table)
 # Using the quality-controlled SNP matrix from Kenneth:
 SNP.matrix <- data.frame(fread(SNP_data_path))
 # SNP.matrix <- data.frame(fread("data/full_imputed_dosage.raw"))
-
-names(SNP.matrix)[2] <- "ringnr"
+names(SNP.matrix)[ringnr_loc] <- "ringnr"
 dim(SNP.matrix)
 set.seed(323422)
 # sum(unique(d.pheno$ringnr) %in% unique(d.map$ringnr))
-# sum(d.ID.pheno$ringnr %in% SNP.matrix$ringnr)
+sum(d.ID.pheno$ringnr %in% SNP.matrix$ringnr)
 # length(unique(d.ID.pheno$ringnr))
 # length(unique(SNP.matrix$ringnr))
-# head(SNP.matrix$ringnr)
+# head(SNP.matrix$FID, 20)
 # head(d.ID.pheno$ringnr)
 # SNP.matrix.reduced <- cbind(
 # SNP.matrix[, 1:6],

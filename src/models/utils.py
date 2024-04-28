@@ -36,6 +36,7 @@ def prep_data_before_train(data: pd.DataFrame, phenotype: str) -> tuple:
             "tarsus",
             "ringnr",
             "mean_pheno",
+            "IID",
             "FID",
             "MAT",
             "PAT",
@@ -174,7 +175,7 @@ class Dataset:
     y_val: pd.DataFrame  = pd.DataFrame()
     ringnr_train: pd.DataFrame = pd.DataFrame()
     ringnr_val: pd.DataFrame = pd.DataFrame()
-    mean_pheno_test: pd.DataFrame
+    mean_pheno_test: pd.DataFrame = pd.DataFrame()
 
     def __post_init__(self):
         kf = GroupShuffleSplit(n_splits=2)

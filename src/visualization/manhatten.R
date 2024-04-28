@@ -2,7 +2,7 @@
 library(qqman)
 setwd("/work/didrikls/GenomicPrediction")
 # shap_path <- "models/xgboostMass_70kBV/shap.feather"
-shap_path <- "models/linearlgbmTarsus_70kBV/coefs.feather"
+shap_path <- "models/linearlgbmTarsusStd_70kBV/coefs.feather"
 shap_vals <- arrow::read_feather(shap_path)
 head(shap_vals)[1:10]
 
@@ -55,4 +55,5 @@ head(manhattan_df)
 # manhattan(manhattan_df, chr = "chr", bp = "bp", p = "shap", snp = "snpID", logp = FALSE, ylim = c(0, max(manhattan_df$shap)), ylab = "mean SHAP")
 # g <- grid.grabExpr(grid.echo(p))
 # manhattan(manhattan_df, chr = "chr", bp = "bp", p = "shap", snp = "snpID", logp = FALSE, ylim = c(0, 0.015), ylab = "mean SHAP")
-manhattan(manhattan_df, chr = "chr", bp = "bp", p = "coeff", snp = "snpID", logp = FALSE, ylim = c(0, max(manhattan_df$coeff)), ylab = "mean coeff")
+# manhattan(manhattan_df, chr = "chr", bp = "bp", p = "coeff", snp = "snpID", logp = FALSE, ylim = c(0, max(manhattan_df$coeff)), ylab = "mean coeff")
+manhattan(manhattan_df, chr = "chr", bp = "bp", p = "coeff", snp = "snpID", logp = FALSE, ylim = c(0, 0.25), ylab = "mean coeff")

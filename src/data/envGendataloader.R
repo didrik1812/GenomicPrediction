@@ -16,7 +16,8 @@ phenotype <- args[1]
 print(getwd())
 # Packages needed for the script to run:
 if (!require(nadiv)) {
-  install.packages("nadiv", repos = "http://cran.us.r-project.org", dependencies = TRUE)
+  # install.packages("nadiv", repos = "http://cran.us.r-project.org", dependencies = TRUE)
+     library(remotes); install_github("matthewwolak/nadiv", ref = "devel")
 }
 if (!require(pedigree)) {
   install.packages("pedigree", repos = "http://cran.us.r-project.org", dependencies = TRUE)

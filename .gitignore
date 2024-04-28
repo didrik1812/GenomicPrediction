@@ -95,3 +95,10 @@ src/models/dummypy.py
 
 # virtual environment
 .venv/
+
+# plink
+*.tmp
+*.tmp2
+*.tmp3
+
+catboost_info/

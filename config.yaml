@@ -3,20 +3,29 @@
 #### DESCRIPTION ####
 # Two-step xgboost model with bodymass as phenotype
 #### META VARIABLES ####
-name: linearlgbmMass_70kEGAIFI
-phenotype: bodymass
+name: linearlgbmTarsusStd_70kExtBVAIFI
+phenotype: tarsus
 model: lightgbm
+
+### which procedure ###
+# two-step-> remove env effects and train with pseduo-response. 
+# One-step -> dont remove env effects, train with actual phenotype
 procedure: two-step
+#Use 70k data, if you want to use the 180K data, comment this one 
 data: _70k
   #### HYPERPARAMETERS ####
   # TUNEABLE HYPERPARAMETERS, DEFINED BY SEARCHSPACE
-searchspace: lgbm_space 
+searchspace: lgbm_space
 
   # FIXED HYPERPARAMETERS
 fixed:
+  # objective: RMSE
+  # logging_level: Silent
   # fit_intercept: True
   # booster: gblinear
-  # objective: regression
+  objective: regression
+  # objective: quantile
+  # alpha: 0.75
   force_col_wise: true
   # data_sample_strategy: goss
   # nthread: 4
