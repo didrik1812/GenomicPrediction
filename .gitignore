@@ -97,8 +97,17 @@ src/models/dummypy.py
 .venv/
 
 # plink
-*.tmp
-*.tmp2
-*.tmp3
+.tmp
+.tmp2
+.tmp3
 
 catboost_info/
+
+output/
+
+.bed
+.bim
+.fam
+.irem
+.nosex
+*.raw
