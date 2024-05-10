@@ -1,5 +1,6 @@
 from hyperopt import hp
 import numpy as np
+import scipy.stats as st
 
 GBM_space = {
     "learning_rate": hp.loguniform("learning_rate", -3, -1),
@@ -101,6 +102,23 @@ xgboost_rand_space = {
     'verbosity': [0],
 }
 
+
+
+xgboost_rand_space_2 = {
+    'n_estimators': st.randint(100,500),
+    'learning_rate': st.loguniform(0.001, 0.1),
+    'num_leaves': st.randint(5, 60),
+    'min_child_weight': st.uniform(loc = 0.5, scale = 15),
+    'alpha': st.loguniform(1e-5, 1e-1),
+    'lambda':st.loguniform(1e-5, 1e-1),
+    'subsample': st.uniform(loc = 0.4, scale = 0.5),
+    'subsample_freq': [1],
+    'colsample_bytree':st.uniform(loc = 0.2, scale = 0.6),
+    'colsample_bynode': st.uniform(loc = 0.2, scale = 0.7),
+    'gamma': st.loguniform(1e-3, 1e-1),
+    'verbosity': [0],
+}
+
 xgboost_linear_rand_space = {
     "lambda": np.logspace(-8,2, num = 10),
     "alpha": np.logspace(-8, 2, num = 10),
@@ -111,12 +129,13 @@ xgboost_linear_rand_space = {
 }
 
 catboost_rand_space = {
-    "learning_rate": np.logspace(-7, 0,num =20),
+    "learning_rate": np.logspace(-4, 0,num =20),
     "random_strength": np.linspace(0, 20, num = 10),
-    "l2_leaf_reg": np.logspace(1, np.log(10), num = 10),
+    "l2_leaf_reg": np.logspace(1, 10, num = 10),
     "bagging_temperature": np.linspace(0, 1, num = 10),
-    "leaf_estimation_iterations": np.linspace( 1, 10, num = 5, dtype=np.int64),
-    "iterations": np.arange(100, 500, 40, dtype=np.int64)
+    "leaf_estimation_iterations": np.linspace( 1, 10, num = 10, dtype=np.int64),
+    "iterations": np.linspace(100, 900, num = 20, dtype=np.int64),
+    "depth": np.arange(1, 10, 1)
 }
 
 xgboost_linear_space = {
@@ -152,5 +171,6 @@ search_spaces = {
     "xgboost_rand_space" : xgboost_rand_space, 
     "xgboost_linear_rand_space" : xgboost_linear_rand_space, 
     "catboost_rand_space" : catboost_rand_space, 
+    "xgboost_rand_space_2":xgboost_rand_space_2,
     
 }

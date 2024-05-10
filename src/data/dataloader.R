@@ -162,7 +162,7 @@ if (use_big_dataset == T) {
 library(lme4)
 dd <- d.morph[!is.na(d.morph[phenotype]), ]
 write_feather(dd, save_dd_name)
-r.pheno.lmer <- lmer(formula.pheno.lmm, data = dd)
+r.pheno.lmer <- lmer(formula.pheno.lmm, data = dd,  control = lmerControl(optimizer ="Nelder_Mead"))
 
 # Residuals
 d.pheno.res <- data.frame(ringnr = dd$ringnr, pheno_res = residuals(r.pheno.lmer))

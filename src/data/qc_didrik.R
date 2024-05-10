@@ -1,5 +1,6 @@
 library(data.table)
 Sys.setenv(PATH=paste(Sys.getenv("PATH"), "~/plink", sep=":"))
+
 do_qc <- function(fam_file, ## PATH TO .FAM file
                   ncores, # how many cores plink gets to use
                   mem, # how much memory plink gets to use
