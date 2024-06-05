@@ -9,11 +9,14 @@
 
 
 rm(list = ls())
-path_to_results <- "~/../../../../work/didrikls/GenomicPrediction/models/results.feather"
-read_path  <- "~/../../../../work/didrikls/GenomicPrediction/data/interim/"
-setwd("~/../../../../work/didrikls/GenomicPrediction/src")
+# Set path variables 
+# read config file to find out which phenotype should be run and wether INLA should be executed.
+path_to_results <- "/work/didrikls/GenomicPrediction/models/results.feather"
+read_path  <- "/work/didrikls/GenomicPrediction/data/interim/"
+setwd("/work/didrikls/GenomicPrediction/src")
 config_yaml <- yaml::read_yaml("../config.yaml")
 phenotype <- config_yaml$phenotype
+
 model <- config_yaml$model
 if (model != "INLA"){
 	quit(save="no")
@@ -90,6 +93,15 @@ library(INLA)
 # library(dplyr)
 
 
+# Prep data and set variables before training
+# This is similar to the dataloader script
+mod_name_G = "INLA_G_180K"
+mod_name_EG = "INLA_EG_180K"    
+data_path <- "~/../../../../work/didrikls/ProjectThesis/data/"
+SNP_data_path <- paste(data_path, "Helgeland_01_2018_QC.raw", sep = "")
+ringnr_loc <- 2
+save_name <- paste(store_path, phenotype, "BV.feather", sep = "")
+save_dd_name <- paste(store_path, phenotype, "Morph.feather", sep = "")
 # Data preparation helper script:
 source("h_dataPrep.r")
 
@@ -108,6 +120,28 @@ d.map$IDC <- 1:nrow(d.map)
 d.morph$IDC <- d.map[match(d.morph$ringnr, d.map$ringnr), "IDC"]
 ### Prepare for use in INLA -
 d.morph$IDC4 <- d.morph$IDC3 <- d.morph$IDC2 <- d.morph$IDC
+
+
+formula.mass <- eval(as.symbol(phenotype)) ~ sex + FGRM + month + age + outer + other +
+f(hatchisland, model = "iid", hyper = list(
+    prec = list(initial = log(1), prior = "pc.prec", param = c(1, 0.05))
+)) +
+f(hatchyear, model = "iid", hyper = list(
+    prec = list(initial = log(1), prior = "pc.prec", param = c(1, 0.05))
+)) +
+f(IDC, model = "iid", hyper = list(
+    prec = list(initial = log(1), prior = "pc.prec", param = c(1, 0.05))
+)) +
+f(IDC2,
+    values = 1:3116, model = "generic0",
+    Cmatrix = Cmatrix,
+    constr = TRUE,
+    hyper = list(
+        # The priors are relevant, need to discuss
+        prec = list(initial = log(0.5), prior = "pc.prec", param = c(sqrt(2), 0.05))
+    )
+)
+
 
 corr_cvs_EG <- c()
 corr_cvs_G <- c()
@@ -182,25 +216,7 @@ for (i in 0:9) {
     ## INLA formula
     ##
     # Here we use body mass as the response, and some fixed and random effects:
-    formula.mass <- eval(as.symbol(phenotype)) ~ sex + FGRM + month + age + outer + other +
-        f(hatchisland, model = "iid", hyper = list(
-            prec = list(initial = log(1), prior = "pc.prec", param = c(1, 0.05))
-        )) +
-        f(hatchyear, model = "iid", hyper = list(
-            prec = list(initial = log(1), prior = "pc.prec", param = c(1, 0.05))
-        )) +
-        f(IDC, model = "iid", hyper = list(
-            prec = list(initial = log(1), prior = "pc.prec", param = c(1, 0.05))
-        )) +
-        f(IDC2,
-            values = 1:3116, model = "generic0",
-            Cmatrix = Cmatrix,
-            constr = TRUE,
-            hyper = list(
-                # The priors are relevant, need to discuss
-                prec = list(initial = log(0.5), prior = "pc.prec", param = c(sqrt(2), 0.05))
-            )
-        )
+
     cat("Starting INLA\n")
     model1.mass <- inla(
         formula = formula.mass, family = "gaussian",
@@ -227,8 +243,12 @@ for (i in 0:9) {
     corr_cvs_EG <- c(corr_cvs_EG, corr_EG)
 }
 # save results
+
+# read the result df
 result_df <- arrow::read_feather(path_to_results)
-INLA_result_df <- data.frame(name = "INLA_EG", corr = corr_cvs_EG, phenotype = phenotype)
-INLA_result_df <- rbind(INLA_result_df, data.frame(name = "INLA_G", corr = corr_cvs_G,phenotype = phenotype))
+# we store both results of the predicted breeding value (G) and the predicted phenotype (EG)
+INLA_result_df <- data.frame(name = mod_name_EG, corr = corr_cvs_EG, phenotype = phenotype)
+INLA_result_df <- rbind(INLA_result_df, data.frame(name = mod_name_G, corr = corr_cvs_G,phenotype = phenotype))
 result_df <- rbind(result_df, INLA_result_df)
+
 arrow::write_feather(result_df, path_to_results)

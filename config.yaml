@@ -1,37 +1,53 @@
 # Path: config.yaml
 
 #### DESCRIPTION ####
-# Two-step xgboost model with bodymass as phenotype
+# Write a description here 
 #### META VARIABLES ####
-name: xgboostMass_70kBV
-phenotype: bodymass
-model: xgboost
-procedure: two-step
-data: _70k
-  #### HYPERPARAMETERS ####
-  # TUNEABLE HYPERPARAMETERS, DEFINED BY SEARCHSPACE
-searchspace: xgboost_space
+name:  xgboostTarsusStd_70kExtBV # A unique name of the model
+phenotype: tarsus # the phenotype to model
+model: xgboost # the library/model to use
 
-  # FIXED HYPERPARAMETERS
+### which procedure ###
+# two-step-> remove env effects and train with pseduo-response. 
+# One-step -> dont remove env effects, train with actual phenotype
+procedure: two-step
+#Use 70k data, if you want to use the 180K data, comment this one out
+data: _70k
+
+#### HYPERPARAMETERS ####
+  # TUNEABLE HYPERPARAMETERS, DEFINED BY SEARCHSPACE
+searchspace: xgboost_rand_space
+
+# FIXED HYPERPARAMETERS 
 fixed:
+  ### CatBoost ###
+  # objective: RMSE
+  # logging_level: Silent
+  # thread_count: 4
+  ### LGBM ###
   # fit_intercept: True
-  # booster: gblinear
-  booster: gbtree
   # objective: regression
+  # objective: mae
+  # objective: quantile
+  # alpha: 0.75
   # force_col_wise: true
   # data_sample_strategy: goss
-  # nthread: 4
-  early_stopping_rounds: 25
+  ### Both ###
+  nthread: 4
+  # early_stopping_rounds: 50
   # n_estimators: 50
+  ### XGBoost ###
+  # booster: gblinear
   # objective: reg:absoluteerror
   # huber_slope: 0.1 # 1 is default value
   # objective: reg:quantileerror
   # quantile_alpha: [0.05, 0.5, 0.95]
+  objective: reg:squarederror
 
-    #### Settings for hyperparameter optimization ####
+#### Settings for hyperparameter optimization ####
     # Number of iterations for hyperparameter optimizationhyp_settings
 hyp_settings:
-  max_evals: 30
+  max_evals: 20
 
 ### Train and test between populations? ###
 # If yes, the model will be trained on one population and tested on another

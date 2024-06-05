@@ -35,6 +35,7 @@ class ModelCV:
         self.project_path = data_path.parents[2]
 
     def splitter(self, X, ringnrs):
+        # Split dataset based on ringnrs (i.e, dont want a individual to be present in both test and train set)
         kf = GroupKFold(n_splits=self.n_splits)
         kfsplits = kf.split(X, groups=ringnrs)
         fold_names = [i for i in range(self.n_splits)]
@@ -42,15 +43,16 @@ class ModelCV:
             yield train, test, fold_names[i]
 
     def train_and_eval(self, dataset: Dataset):
-        trainer = ModelTrainer(modelSettings=self.modelSettings, data=dataset, max_evals= self.modelSettings.hyp_settings["max_evals"])
+        trainer = ModelTrainer(modelSettings=self.modelSettings, data=dataset)
         trainer.hypertrain()
         trainer.save(project_path=self.project_path)
         try:
             y_preds = trainer.bestModel.predict(dataset.X_test, iteration_range= (0, trainer.bestModel.best_iteration))
         except:
             y_preds = trainer.bestModel.predict(dataset.X_test) 
-        self.corr = pearsonr(y_preds, dataset.y_test)[0]
+        self.corr = pearsonr(y_preds, dataset.mean_pheno_test)[0]
         print(f"FOLD {dataset.fold} finished\t corr: {self.corr} ")
+        print(f'tuned hyp values: {trainer.bestModel.best_params_}')
 
     def run(self):
         data = pd.read_feather(self.data_path)
@@ -60,7 +62,7 @@ class ModelCV:
             data=data, phenotype=self.modelSettings.phenotype
             )
         else:
-            X, y, ringnrs = prep_data_before_train(
+            X, y, ringnrs, mean_pheno = prep_data_before_train(
                 data=data, phenotype=self.modelSettings.phenotype
             )
 
@@ -73,6 +75,11 @@ class ModelCV:
                 ringnrs.iloc[train_val_index],
                 ringnrs.iloc[test_index],
             )
+            mean_pheno_test = mean_pheno.iloc[test_index]
+
+            if self.modelSettings.procedure == "two-step":
+                X_train_val = X_train_val.drop(columns = ["hatchisland"])
+                X_test = X_test.drop(columns= ["hatchisland"])
 
             dataset = Dataset(
                 X_train_val=X_train_val,
@@ -82,6 +89,7 @@ class ModelCV:
                 ringnr_train_val=ringnr_train_val,
                 ringnr_test=ringnr_test,
                 fold=fold,
+                mean_pheno_test=mean_pheno_test
             )
             self.train_and_eval(dataset)
             self.add_to_results(fold)
@@ -113,11 +121,11 @@ class ModelCV:
         save_path = self.project_path / "models" / self.modelSettings.name
         shutil.copyfile(self.modelSettings.yaml_path, save_path / "config.yaml")
 
-        old_results = pd.read_pickle(save_path.parent / "results.pkl")
+        old_results = pd.read_pickle(save_path.parent / "correct_restult.pkl")
         self.results = pd.concat([old_results, self.results], axis=0)
         self.results = self.results.reset_index(drop = True)
         self.results = self.results.drop_duplicates()
-        self.results.to_pickle(save_path.parent / "results.pkl")
+        self.results.to_pickle(save_path.parent / "correct_restult.pkl")
 
 
 class ModelOuterInner(ModelCV):
@@ -154,8 +162,10 @@ class ModelAcrossIsland(ModelCV):
         super().__init__(data_path, modelSettings, n_splits)
 
     def splitter(self, X, ringnrs):
-        islands = X.hatchisland.unique()
-        islands = islands[islands >= 5]
+        # islands = X.hatchisland.unique()
+        # islands = islands[islands >= 5]
+        islands = [20, 22, 23, 24, 26, 27, 28,38]
+        X = X.loc[X.hatchisland.isin(islands)]
         for i in range(len(islands)):
             train_val_index = X.index[X.hatchisland != islands[i]]
             test_index = X.index[X.hatchisland == islands[i]]
@@ -208,6 +218,7 @@ class ModelINLA(ModelCV):
         shutil.copyfile(self.project_path / "config.yaml", save_path / "config.yaml")
 
 '''Functions for quantile regresssion (class is dynamically created in train_model script)'''
+# THIS IS ONLY USED IF ONE FITS MULTIPLE QUANTILES THE SAME TIME
 
 def train_and_eval_quantile(self, dataset: Dataset):
     trainer = QuantileTrainer(modelSettings=self.modelSettings, data=dataset)
@@ -287,20 +298,6 @@ def save_quantile(self):
     self.results_quantile.to_pickle(save_path.parent / "results_quantile.pkl")
 
 
-''' Benchagainst using the mean '''
-
-
-def train_and_eval_mean(self, dataset: Dataset):
-    y_mean = np.mean(dataset.y_train_val)
-    y_preds = np.repeat(y_mean, len(dataset.y_test))
-    self.corr = pearsonr(y_preds, dataset.y_test)[0]
-    mse = np.mean(np.abs(y_preds - dataset.y_test))
-    print(
-        f"FOLD {dataset.fold} finished, mse :{mse}"
-    )
-    if dataset.fold == "inner" or dataset.fold == 9:
-        import sys
-        sys.exit()
 
 
 

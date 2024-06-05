@@ -95,3 +95,33 @@ src/models/dummypy.py
 
 # virtual environment
 .venv/
+
+# plink
+
+*.tmp
+
+*.tmp2
+
+*.tmp3
+
+catboost_info/
+
+output/
+
+*.bed
+
+*.bim
+
+*.fam
+
+*.irem
+
+*.nosex
+
+*.raw
+
+keep.txt
+
+fam_keep.tmp
+fam_keep.tmp2
+fam_keep.tmp3
