@@ -1,5 +1,13 @@
 #!/bin/bash
 
+#######################################################
+# qc_bash.sh
+# script used to make the SNP matrix for the 70K data
+# Uses plink
+# run it by "sh qc_bash.sh"
+########################################################
+
+
 # Set variables
 fam_file="data/raw/combined_200k_70k_helgeland_south_corrected_snpfiltered_2024-02-05.fam" # FILL IN PATH TO FAM FILE
 mem=8000

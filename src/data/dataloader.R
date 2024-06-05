@@ -1,13 +1,16 @@
 #######################################################################
 ## Didrik Sand, September 2024
 # Script is based on code from Stefanie Muff
-## This script is used to extract the data needed for the two-step approach
-# The script should not be run directly, but rather from the configuration script code/model_exploration.py
+## This script is used to extract the data needed for to create the pseduo-response from the phenotype
+# The script should not be run directly, but through the Makefile
+# If ran manually, beware that two arguments are needed the phenotype ("mass" or "tarsus") and wether
+# the 70K should be used or not (boolean argument)
 #######################################################################
 
 # CHANGE THIS TO YOUR OWN PATH: (i.e where the data is stored)
-store_path <- "~/../../../../work/didrikls/GenomicPrediction/data/processed/"
-setwd("~/../../../../work/didrikls/GenomicPrediction/src")
+store_path <- "/work/didrikls/GenomicPrediction/data/processed/"
+setwd("/work/didrikls/GenomicPrediction/src")
+# two inputs are needed for the script a phenotype (first argument, )
 args <- commandArgs(trailingOnly = TRUE)
 phenotype <- args[1]
 if (length(args) == 2) {
@@ -16,7 +19,6 @@ if (length(args) == 2) {
 } else {
     use_big_dataset <- FALSE
 }
-
 
 # Packages needed for the script to run:
 
@@ -61,10 +63,9 @@ if (!require(feather)) {
 
 
 
-# Sys.setenv(NOT_CRAN = "true")
-# install.packages("arrow")
 
-# library(nadiv)
+
+library(nadiv)
 library(pedigree)
 library(MASS)
 library(MCMCpack)
@@ -76,8 +77,6 @@ library(feather)
 
 library(dplyr)
 
-# library(keras)
-# library(tensorflow)
 
 ## Old packages no longer needed (but kept as comments, in case we need them in the future...)
 # library(MasterBayes)
@@ -90,8 +89,11 @@ library(dplyr)
 if (use_big_dataset == T) {
     print("using qc.raw")
     SNP_data_path <- "../data/raw/qc.raw"
+    # loccation of the ringnr in the SNP matrix (qc.raw)
     ringnr_loc <- 1
+    # where to save the phenotype-SNP data
     save_name <- paste(store_path, phenotype, "BV_70k.feather", sep = "")
+    # save morphological data after some processing
     save_dd_name <- paste(store_path, phenotype, "Morph_70k.feather", sep = "")
     d.morph <- read.table("../data/raw/AdultMorphology_20240201_fix.csv", header = T, sep = ";") # sep="\t")
     # Rename to match the previous dataset
@@ -115,6 +117,7 @@ if (use_big_dataset == T) {
     save_name <- paste(store_path, phenotype, "BV.feather", sep = "")
     save_dd_name <- paste(store_path, phenotype, "Morph.feather", sep = "")
     # Data preparation helper script:
+    # this creates d.morph and extracts the FGRM and the outer inner variable
     source("data/h_dataPrep.r")
     # Some data wranging to ensure that the IDs in the data correspond to the IDs in the A and G-matrices (nothing to worry about):
     # indicates that some IDs are missing:
@@ -161,12 +164,13 @@ if (use_big_dataset == T) {
 
 library(lme4)
 dd <- d.morph[!is.na(d.morph[phenotype]), ]
+# save the morph data before the adjusting happens
 write_feather(dd, save_dd_name)
-r.pheno.lmer <- lmer(formula.pheno.lmm, data = dd,  control = lmerControl(optimizer ="Nelder_Mead"))
 
+# run LMM
+r.pheno.lmer <- lmer(formula.pheno.lmm, data = dd,  control = lmerControl(optimizer ="Nelder_Mead"))
 # Residuals
 d.pheno.res <- data.frame(ringnr = dd$ringnr, pheno_res = residuals(r.pheno.lmer))
-
 # Mean over repeats for each individual
 d.mean.pheno.res <- as.data.frame(d.pheno.res %>%
     group_by(ringnr) %>%
@@ -174,7 +178,6 @@ d.mean.pheno.res <- as.data.frame(d.pheno.res %>%
 
 # ID effect
 d.ID.pheno <- data.frame(ringnr = d.mean.pheno[, 1], ID.mass = ranef(r.pheno.lmer)$ringnr)
-
 
 # We take as the new phenotype the estimated ID effect:
 d.ID.pheno <- data.frame(ringnr = d.mean.pheno[, 1], ID = d.ID.pheno[, 2], mean_pheno = d.mean.pheno$mean_pheno)
@@ -188,29 +191,18 @@ d.ID.pheno <- d.ID.pheno %>%
 ### Now we also load the raw SNP data matrix
 #############################################################
 library(data.table)
-# no_snps <- 20000
 
 # Using the quality-controlled SNP matrix from Kenneth:
 SNP.matrix <- data.frame(fread(SNP_data_path))
-# SNP.matrix <- data.frame(fread("data/full_imputed_dosage.raw"))
+
 names(SNP.matrix)[ringnr_loc] <- "ringnr"
 dim(SNP.matrix)
 set.seed(323422)
-# sum(unique(d.pheno$ringnr) %in% unique(d.map$ringnr))
 sum(d.ID.pheno$ringnr %in% SNP.matrix$ringnr)
-# length(unique(d.ID.pheno$ringnr))
-# length(unique(SNP.matrix$ringnr))
-# head(SNP.matrix$FID, 20)
-# head(d.ID.pheno$ringnr)
-# SNP.matrix.reduced <- cbind(
-# SNP.matrix[, 1:6],
-# (SNP.matrix[, sort(sample(7:181369, no_snps, replace = FALSE))])
-# )
+
 
 
 # Generate a data frame where individuals with ring numbers from d.ID.res.mass are contained, as well as the phenotype (here the residuals from the lmer analysis with mass as response)
-# d.dat <- merge(d.ID.pheno[, c("ringnr", "ID")], SNP.matrix.reduced, by = "ringnr")
 d.dat.full <- merge(d.ID.pheno[, c("ringnr", "ID", "mean_pheno", "hatchisland")], SNP.matrix, by = "ringnr")
-# head(colnames(d.dat.full), 10)
 # SAVE THE FULL DATA SET:
 write_feather(d.dat.full, save_name)

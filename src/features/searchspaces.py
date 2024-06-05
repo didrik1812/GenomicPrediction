@@ -1,7 +1,15 @@
+'''
+searchspaces.py
+Here the searchspaces used in the hyperparametertuning is defined
+'''
+
 from hyperopt import hp
 import numpy as np
 import scipy.stats as st
 
+#################################################################################################################
+# SEARCH SPACES FROM PROJECT THESIS (BAYESIAN OPTIMIZATION)
+# NOT USED IN THE MASTER THESIS
 GBM_space = {
     "learning_rate": hp.loguniform("learning_rate", -3, -1),
     "n_estimators": hp.randint("n_estimators", 20, 205),
@@ -58,6 +66,12 @@ linearlgbm_space = {
     "max_depth": hp.randint("max_depth", 15, 500),
     "n_estimators": hp.randint("n_estimators", 20, 205),
 }
+
+
+#################################################################################################################
+
+# SEARCH SPACES USED IN MASTER THESIS, This uses randomized search
+
 lgbm_space = {
     'n_estimators': np.arange(300, 600, 20),#[ 150, 200, 300, ],
     'learning_rate': np.arange(0.01, 0.061, 0.005),# [0.03, 0.05, 0.07, ],
@@ -72,43 +86,15 @@ lgbm_space = {
     'colsample_bytree': np.arange(0.2, 0.81, 0.05), #[0.5, 0.8, ],#0.3, 0.5, 0.8],
     'colsample_bynode': np.arange(0.2, 1.01, 0.05), #[0.5, 0.8, ],#0.3, 0.5, 0.8],
     'linear_lambda': [1e-3, 3e-3, 1e-2, 3e-2, 0.1,],
-    # 'data_sample_strategy': ["goss",],
-    # 'top_rate': [0.7,], 
-    # 'other_rate': [0.3,],
-    
-
-    # 'max_bins': np.arange(120, 400, 20),
-    # 'min_data_in_bin': np.exp(np.arange(np.log(3), np.log(12), 0.1)).astype(int), #np.arange(2, 10),# [2, 3, 4, 5, 10],
-                # [ 192, 
-                 #255, 255, 384, 512],
     'min_data_per_group': [10, 20, 50, 100],
     'verbose': [-1],
 }
 
 
-
 xgboost_rand_space = {
-    'n_estimators': np.arange(100, 300, 20),#[ 150, 200, 300, ],
-    'learning_rate': np.arange(0.001, 0.061, 0.005),# [0.03, 0.05, 0.07, ],
-    'num_leaves': np.arange(10, 30),# [5, 7, 10, 15, 20,],
-    'min_child_weight': np.arange(0.5, 15, 0.5),#[  0.1, 0.2, ],
-    'alpha': [0, 1e-5, 1e-4, 1e-3, 1e-2, 0.1,  ],
-    'lambda':  [0, 1e-5, 1e-4, 1e-3, 1e-2, 0.1, ],
-    'subsample': np.arange(0.4, 0.901, 0.05),#[0.3, 0.5,  0.8],
-    'subsample_freq': [1],
-    'colsample_bytree': np.arange(0.2, 0.81, 0.05), #[0.5, 0.8, ],#0.3, 0.5, 0.8],
-    'colsample_bynode': np.arange(0.2, 1.01, 0.05), #[0.5, 0.8, ],#0.3, 0.5, 0.8],
-    'gamma': [1e-3, 3e-3, 1e-2, 3e-2, 0.1, ],
-    'verbosity': [0],
-}
-
-
-
-xgboost_rand_space_2 = {
     'n_estimators': st.randint(100,500),
     'learning_rate': st.loguniform(0.001, 0.1),
-    'num_leaves': st.randint(5, 60),
-    'min_child_weight': st.uniform(loc = 0.5, scale = 15),
+    'min_child_weight': st.randint(1, 15),
     'alpha': st.loguniform(1e-5, 1e-1),
     'lambda':st.loguniform(1e-5, 1e-1),
     'subsample': st.uniform(loc = 0.4, scale = 0.5),
@@ -116,61 +102,40 @@ xgboost_rand_space_2 = {
     'colsample_bytree':st.uniform(loc = 0.2, scale = 0.6),
     'colsample_bynode': st.uniform(loc = 0.2, scale = 0.7),
     'gamma': st.loguniform(1e-3, 1e-1),
+    'max_depth': st.randint(1, 10),
     'verbosity': [0],
 }
 
+
+
 xgboost_linear_rand_space = {
-    "lambda": np.logspace(-8,2, num = 10),
-    "alpha": np.logspace(-8, 2, num = 10),
-    "n_estimators": np.arange(20, 205, 20),
-    "eta": np.logspace(-7, 0, num = 20),
-    # top_k can only be used with greedy or thrifty feature selector
-    # "top_k": hp.randint("top_k", int(1e3), int(3e4) )
+     'lambda':st.loguniform(1e-5, 1e-1),
+     'alpha': st.loguniform(1e-5, 1e-1),
+     'n_estimators': st.randint(20,500),
+     'learning_rate': st.loguniform(0.001, 0.1),
+
 }
+
 
 catboost_rand_space = {
-    "learning_rate": np.logspace(-4, 0,num =20),
-    "random_strength": np.linspace(0, 20, num = 10),
-    "l2_leaf_reg": np.logspace(1, 10, num = 10),
-    "bagging_temperature": np.linspace(0, 1, num = 10),
-    "leaf_estimation_iterations": np.linspace( 1, 10, num = 10, dtype=np.int64),
-    "iterations": np.linspace(100, 900, num = 20, dtype=np.int64),
-    "depth": np.arange(1, 10, 1)
+    "learning_rate": st.loguniform(0.0001, 0.1),
+    "random_strength": st.randint(0,20),
+    "l2_leaf_reg": st.loguniform(0.1, 40),
+    "bagging_temperature": st.uniform(0.1, 1),
+    "leaf_estimation_iterations": st.randint(1,10),
+    "iterations": st.randint(100, 800),
+    "depth": st.randint(1,10)
 }
 
-xgboost_linear_space = {
-    "lambda": hp.loguniform("lambda", -8, 2),
-    "alpha": hp.loguniform("alpha", -8, 2),
-    "n_estimators": hp.randint("n_estimators", 20, 205),
-    "eta": hp.loguniform("learning_rate", -7, 0),
-    # top_k can only be used with greedy or thrifty feature selector
-    # "top_k": hp.randint("top_k", int(1e3), int(3e4) )
-}
-
-elasticnet_space ={
-        "alpha": hp.loguniform("alpha", -4, 0),
-        "l1_ratio": hp.loguniform("l1_ratio", -4, 0),
-
-}
-
-linearresidtree_space = {
-    **xgboost_space,
-    **xgboost_linear_space
-}
-
+# Collect all spaces in one dict
 search_spaces = {
     "xgboost_space": xgboost_space,
     "lightgbm_space": LGBM_space,
     "catboost_space": catboost_space,
     "GBM_space": GBM_space,
-    "xgboost_linear_space": xgboost_linear_space,
-    "linearresidtree_space": linearresidtree_space,
-    "elasticnet_space": elasticnet_space,
     "linearlgbm_space":linearlgbm_space,
     "lgbm_space": lgbm_space,
     "xgboost_rand_space" : xgboost_rand_space, 
     "xgboost_linear_rand_space" : xgboost_linear_rand_space, 
     "catboost_rand_space" : catboost_rand_space, 
-    "xgboost_rand_space_2":xgboost_rand_space_2,
-    
 }

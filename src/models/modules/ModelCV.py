@@ -35,6 +35,7 @@ class ModelCV:
         self.project_path = data_path.parents[2]
 
     def splitter(self, X, ringnrs):
+        # Split dataset based on ringnrs (i.e, dont want a individual to be present in both test and train set)
         kf = GroupKFold(n_splits=self.n_splits)
         kfsplits = kf.split(X, groups=ringnrs)
         fold_names = [i for i in range(self.n_splits)]
@@ -42,7 +43,7 @@ class ModelCV:
             yield train, test, fold_names[i]
 
     def train_and_eval(self, dataset: Dataset):
-        trainer = ModelTrainer(modelSettings=self.modelSettings, data=dataset, max_evals= self.modelSettings.hyp_settings["max_evals"])
+        trainer = ModelTrainer(modelSettings=self.modelSettings, data=dataset)
         trainer.hypertrain()
         trainer.save(project_path=self.project_path)
         try:
@@ -51,6 +52,7 @@ class ModelCV:
             y_preds = trainer.bestModel.predict(dataset.X_test) 
         self.corr = pearsonr(y_preds, dataset.mean_pheno_test)[0]
         print(f"FOLD {dataset.fold} finished\t corr: {self.corr} ")
+        print(f'tuned hyp values: {trainer.bestModel.best_params_}')
 
     def run(self):
         data = pd.read_feather(self.data_path)
@@ -216,6 +218,7 @@ class ModelINLA(ModelCV):
         shutil.copyfile(self.project_path / "config.yaml", save_path / "config.yaml")
 
 '''Functions for quantile regresssion (class is dynamically created in train_model script)'''
+# THIS IS ONLY USED IF ONE FITS MULTIPLE QUANTILES THE SAME TIME
 
 def train_and_eval_quantile(self, dataset: Dataset):
     trainer = QuantileTrainer(modelSettings=self.modelSettings, data=dataset)
@@ -295,20 +298,6 @@ def save_quantile(self):
     self.results_quantile.to_pickle(save_path.parent / "results_quantile.pkl")
 
 
-''' Benchagainst using the mean '''
-
-
-def train_and_eval_mean(self, dataset: Dataset):
-    y_mean = np.mean(dataset.y_train_val)
-    y_preds = np.repeat(y_mean, len(dataset.y_test))
-    self.corr = pearsonr(y_preds, dataset.y_test)[0]
-    mse = np.mean(np.abs(y_preds - dataset.y_test))
-    print(
-        f"FOLD {dataset.fold} finished, mse :{mse}"
-    )
-    if dataset.fold == "inner" or dataset.fold == 9:
-        import sys
-        sys.exit()
 
 
 

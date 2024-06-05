@@ -1,6 +1,12 @@
+# h_dataPrep.r
+# preps data for the 180K dataset
+# Script provided by Stefanie Muff
+# Used as a help-script in the dataloader
+# Only thing to change here is the "data_path" variable
+
 #-----------------------------------------------------------------------
 # load some data 
-data_path = "~/../../../../work/didrikls/ProjectThesis/data/"
+data_path = "/work/didrikls/ProjectThesis/data/"
 d.year <- read.table(paste(data_path,"spuRvebasen-hatchyear-island_1993-2016_february2017_forSteffi.csv", sep = ""), header = T, sep=",")
 
 # morphological traits for individuals on the 8 islands of interest:
@@ -181,3 +187,4 @@ d.morph$other <- d.ped[match(d.morph$id,d.ped$id),"other"]
 d.tmp <- d.natal[d.natal$ringnr %in% d.morph$ringnr,]
 table(d.tmp$islandIO )
 
+head(d.morph70)
